@@ -8,4 +8,4 @@ deployment:
     commands:
       - >
         cd skfeature;
-        nosetests
+        nosetests -v

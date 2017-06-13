@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.sparse import *
 from skfeature.utility.construct_W import construct_W
+from skfeature.utility.util import reverse_argsort
 
-
-def lap_score(X, **kwargs):
+def lap_score(X, y=None, mode="rank", **kwargs):
     """
     This function implements the laplacian score feature selection, steps are as follows:
     1. Construct the affinity matrix W if it is not specified
@@ -29,6 +29,14 @@ def lap_score(X, **kwargs):
     He, Xiaofei et al. "Laplacian Score for Feature Selection." NIPS 2005.
     """
 
+    def feature_ranking(score):
+        """
+        Rank features in ascending order according to their laplacian scores, the smaller the laplacian score is, the more
+        important the feature is
+        """
+        idx = np.argsort(score, 0)
+        return idx
+    
     # if 'W' is not specified, use the default W
     if 'W' not in list(kwargs.keys()):
         W = construct_W(X)
@@ -51,13 +59,11 @@ def lap_score(X, **kwargs):
 
     # compute laplacian score for all features
     score = 1 - np.array(np.multiply(L_prime, 1/D_prime))[0, :]
-    return np.transpose(score)
+    F = feature_ranking(np.transpose(score))
 
+    if mode=="index":
+        return np.array(F, dtype=int)
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])
 
-def feature_ranking(score):
-    """
-    Rank features in ascending order according to their laplacian scores, the smaller the laplacian score is, the more
-    important the feature is
-    """
-    idx = np.argsort(score, 0)
-    return idx

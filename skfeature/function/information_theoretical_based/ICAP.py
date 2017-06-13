@@ -1,7 +1,7 @@
 from skfeature.utility.entropy_estimators import *
+from skfeature.utility.util import reverse_argsort
 
-
-def icap(X, y, **kwargs):
+def icap(X, y, mode="rank", **kwargs):
     """
     This function implements the ICAP feature selection.
     The scoring criteria is calculated based on the formula j_icap = I(f;y) - max_j(0,(I(fj;f)-I(fj;f|y)))
@@ -73,4 +73,9 @@ def icap(X, y, **kwargs):
         F.append(idx)
         f_select = X[:, idx]
 
-    return np.array(F)
+    if mode=="index":
+        return np.array(F, dtype=int)
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])
+

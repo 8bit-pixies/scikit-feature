@@ -33,4 +33,3 @@ def test_chi2():
     results = cross_val_score(model, X, y, cv=kfold)
     print("Accuracy: {}".format(results.mean()))
     assert_true(results.mean() > 0.95)
-

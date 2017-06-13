@@ -10,16 +10,13 @@ from sklearn.pipeline import Pipeline
 
 def test_svm_backward():
     # load data
-    mat = scipy.io.loadmat('./data/COIL20.mat')
-    X = mat['X']    # data
+    # load data
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=200, n_features=20, n_informative=5, n_redundant=5, n_classes=2)
     X = X.astype(float)
-    y = mat['Y']    # label
-    y = y[:, 0]
     n_samples, n_features = X.shape    # number of samples and number of features
 
-    # reduce cols to speed up test - rather than wait a minute
-    X = X[:, :100]    
-    num_fea = 10
+    num_fea = 5
     
     # split data into 10 folds
     kfold = KFold(n_splits=10, shuffle=True)
@@ -36,15 +33,11 @@ def test_svm_backward():
 
 def test_svm_forward():
     # load data
-    mat = scipy.io.loadmat('./data/colon.mat')
-    X = mat['X']    # data
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=200, n_features=20, n_informative=5, n_redundant=5, n_classes=2)
     X = X.astype(float)
-    y = mat['Y']    # label
-    y = y[:, 0]
     n_samples, n_features = X.shape    # number of samples and number of features
 
-    # reduce cols to speed up test - rather than wait a minute
-    X = X[:, :30]  
     num_fea = 5
     
     # split data into 10 folds

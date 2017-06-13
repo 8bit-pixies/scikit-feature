@@ -8,19 +8,12 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.pipeline import Pipeline
 
 def test_reliefF():
-    # load data
-    mat = scipy.io.loadmat('./data/colon.mat')
-    X = mat['X']    # data
+    from sklearn.datasets import make_classification
+    X, y = make_classification(n_samples=200, n_features=20, n_informative=5, n_redundant=5, n_classes=2)
     X = X.astype(float)
-    y = mat['Y']    # label
-    y = y[:, 0]
     n_samples, n_features = X.shape    # number of samples and number of features
 
-    # perform evaluation on classification task
-    # reduce the sample to speed up the test
-    X = X[:, :30]
-    # perform evaluation on classification task
-    num_fea = 10    # number of selected features
+    num_fea = 5
     
     # build pipeline
     pipeline = []

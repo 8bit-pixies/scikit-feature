@@ -1,5 +1,5 @@
 
-[![PyPI version](https://badge.fury.io/py/sklearn-chappers.svg)](https://badge.fury.io/py/sklearn-chappers) ![CircleCI](https://circleci.com/gh/chappers/scikit-feature/tree/master.svg?style=shield&circle-token=:circle-token)
+[![PyPI version](https://badge.fury.io/py/skfeature-chappers.svg)](https://badge.fury.io/py/skfeature-chappers) ![CircleCI](https://circleci.com/gh/chappers/scikit-feature/tree/master.svg?style=shield&circle-token=:circle-token)
 
 Overview
 ========

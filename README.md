@@ -25,4 +25,3 @@ Installation
 *  Unpack the source package somewhere
 *  Run `python setup.py install` from the source distribution's top level folder
 
-

@@ -10,17 +10,11 @@ import numpy as np
 def test_mcfs():
     # load data
     from functools import partial
-    #mat = scipy.io.loadmat('./data/COIL20.mat')
-    #from sklearn.datasets import load_iris
-    #X = mat['X']    # data
-    #X = X.astype(float)
-    #y = mat['Y']    # label
-    #y = y[:, 0]
-    
-    from sklearn.datasets import load_iris
-    iris = load_iris()
-    X = iris.data
-    y = iris.target
+    mat = scipy.io.loadmat('./data/COIL20.mat')
+    X = mat['X']    # data
+    X = X.astype(float)
+    y = mat['Y']    # label
+    y = y[:, 0]
     
     # construct affinity matrix
     kwargs = {"metric": "euclidean", "neighborMode": "knn", "weightMode": "heatKernel", "k": 5, 't': 1}

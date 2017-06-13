@@ -2,10 +2,9 @@ dependencies:
   override:
     - pip install scikit-learn scipy nose numpy
 
-deployment:
-  release:
-    branch: master
-    commands:
-      - >
-        cd skfeature;
-        nosetests
+test:
+  override:
+    - cd skfeature;
+    - nosetests -v
+
+

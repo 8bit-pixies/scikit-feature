@@ -7,10 +7,15 @@ python:
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
-  - pip install -qq --upgrade pip setuptools wheel
-  - pip install -qq --only-binary=numpy,scipy numpy
   - pip install -qq -r requirements.txt
   - pip install -qq nose
 
+virtualenv:
+  system_site_packages: true
+before_install:
+  - pip install -qq --only-binary=numpy,scipy numpy
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libatlas-dev libatlas-base-dev liblapack-dev gfortran
+  
 # command to run tests, e.g. python setup.py test
 script: cd skfeature; nosetests

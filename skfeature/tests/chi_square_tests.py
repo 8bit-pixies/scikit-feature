@@ -1,7 +1,7 @@
 from nose.tools import *
 import scipy.io
-from sklearn import svm
 from skfeature.function.statistical_based import chi_square
+from sklearn import svm
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 from sklearn.feature_selection import SelectKBest

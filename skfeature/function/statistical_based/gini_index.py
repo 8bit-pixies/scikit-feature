@@ -1,7 +1,7 @@
 import numpy as np
+from skfeature.utility.util import reverse_argsort
 
-
-def gini_index(X, y):
+def gini_index(X, y, mode="rank"):
     """
     This function implements the gini index feature selection.
 
@@ -17,6 +17,13 @@ def gini_index(X, y):
     gini: {numpy array}, shape (n_features, )
         gini index value of each feature
     """
+    def feature_ranking(W):
+        """
+        Rank features in descending order according to their gini index values, the smaller the gini index,
+        the more important the feature is
+        """
+        idx = np.argsort(W)
+        return idx
 
     n_samples, n_features = X.shape
 
@@ -61,16 +68,14 @@ def gini_index(X, y):
 
             if value < gini[i]:
                 gini[i] = value
-    return gini
+    F = feature_ranking(gini)
+    if mode=="index":
+        return np.array(F, dtype=int)
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])
 
 
-def feature_ranking(W):
-    """
-    Rank features in descending order according to their gini index values, the smaller the gini index,
-    the more important the feature is
-    """
-    idx = np.argsort(W)
-    return idx
 
 
 

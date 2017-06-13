@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.sparse import *
 from skfeature.utility.construct_W import construct_W
+from skfeature.utility.util import reverse_argsort
 
-
-def fisher_score(X, y):
+def fisher_score(X, y, mode="rank"):
     """
     This function implements the fisher score feature selection, steps are as follows:
     1. Construct the affinity matrix W in fisher score way
@@ -28,7 +28,10 @@ def fisher_score(X, y):
     He, Xiaofei et al. "Laplacian Score for Feature Selection." NIPS 2005.
     Duda, Richard et al. "Pattern classification." John Wiley & Sons, 2012.
     """
-
+    def feature_ranking(score):
+        idx = np.argsort(score, 0)
+        return idx[::-1]
+    
     # Construct weight matrix W in a fisherScore way
     kwargs = {"neighbor_mode": "supervised", "fisher_score": True, 'y': y}
     W = construct_W(X, **kwargs)
@@ -51,13 +54,15 @@ def fisher_score(X, y):
 
     # compute fisher score from laplacian score, where fisher_score = 1/lap_score - 1
     score = 1.0/lap_score - 1
-    return np.transpose(score)
 
-
-def feature_ranking(score):
     """
     Rank features in descending order according to fisher score, the larger the fisher score, the more important the
     feature is
     """
-    idx = np.argsort(score, 0)
-    return idx[::-1]
+    F = feature_ranking(np.transpose(score))
+    
+    if mode=="index":
+        return F
+    else:
+        return reverse_argsort(F, X.shape[1])
+

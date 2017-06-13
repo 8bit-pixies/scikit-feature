@@ -1,8 +1,8 @@
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.mutual_information import conditional_entropy
+from skfeature.utility.util import reverse_argsort
 
-
-def disr(X, y, **kwargs):
+def disr(X, y, mode="rank", **kwargs):
     """
     This function implement the DISR feature selection.
     The scoring criteria is calculated based on the formula j_disr=sum_j(I(f,fj;y)/H(f,fj,y))
@@ -78,5 +78,8 @@ def disr(X, y, **kwargs):
         F.append(idx)
         f_select = X[:, idx]
 
-    return np.array(F)
+    if mode=="index":
+        return F
+    else:
+        return reverse_argsort(F, X.shape[1])
 

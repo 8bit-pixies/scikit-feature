@@ -10,8 +10,6 @@ install:
   - pip install -qq -r requirements.txt
   - pip install -qq nose
 
-virtualenv:
-  system_site_packages: true
 before_install:
   - pip install -qq --only-binary=numpy,scipy numpy
   - sudo apt-get update -qq

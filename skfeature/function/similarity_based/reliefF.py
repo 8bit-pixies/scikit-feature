@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
+from skfeature.utility.util import reverse_argsort
 
-
-def reliefF(X, y, **kwargs):
+def reliefF(X, y, mode="rank", **kwargs):
     """
     This function implements the reliefF feature selection
 
@@ -27,6 +27,13 @@ def reliefF(X, y, **kwargs):
     Robnik-Sikonja, Marko et al. "Theoretical and empirical analysis of relieff and rrelieff." Machine Learning 2003.
     Zhao, Zheng et al. "On Similarity Preserving Feature Selection." TKDE 2013.
     """
+    def feature_ranking(score):
+        """
+        Rank features in descending order according to reliefF score, the higher the reliefF score, the more important the
+        feature is
+        """
+        idx = np.argsort(score, 0)
+        return idx[::-1]
 
     if "k" not in list(kwargs.keys()):
         k = 5
@@ -100,19 +107,11 @@ def reliefF(X, y, **kwargs):
                 near_miss_term[label] = np.array(abs(self_fea-X[ele, :]))+np.array(near_miss_term[label])
             score += near_miss_term[label]/(k*p_dict[label])
         score -= near_hit_term/k
-    return score
-
-
-def feature_ranking(score):
-    """
-    Rank features in descending order according to reliefF score, the higher the reliefF score, the more important the
-    feature is
-    """
-    idx = np.argsort(score, 0)
-    return idx[::-1]
-
-
-
-
+    if mode == 'raw':
+        return score
+    elif mode == 'index':
+        return feature_ranking(score)
+    elif mode == 'rank':
+        return reverse_argsort(feature_ranking(score), X.shape[1])
 
 

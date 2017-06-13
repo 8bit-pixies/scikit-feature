@@ -1,31 +1,32 @@
+from nose.tools import *
 import scipy.io
 from skfeature.function.similarity_based import SPEC
 from skfeature.utility import unsupervised_evaluation
+from sklearn.feature_selection import SelectKBest
+from sklearn.pipeline import Pipeline
+import numpy as np
+from functools import partial
 
-
-def main():
+def test_spec():
     # load data
-    mat = scipy.io.loadmat('../data/COIL20.mat')
+    mat = scipy.io.loadmat('./data/COIL20.mat')
     X = mat['X']    # data
     X = X.astype(float)
     y = mat['Y']    # label
     y = y[:, 0]
-
-    # specify the second ranking function which uses all except the 1st eigenvalue
-    kwargs = {'style': 0}
-
-    # obtain the scores of features
-    score = SPEC.spec(X, **kwargs)
-
-    # sort the feature scores in an descending order according to the feature scores
-    idx = SPEC.feature_ranking(score, **kwargs)
-
+    
     # perform evaluation on clustering task
     num_fea = 100    # number of selected features
     num_cluster = 20    # number of clusters, it is usually set as the number of classes in the ground truth
-
-    # obtain the dataset on the selected features
-    selected_features = X[:, idx[0:num_fea]]
+    
+    kwargs = {'style': 0}
+    pipeline = []
+    spec_partial = partial(SPEC.spec, **kwargs)
+    pipeline.append(('select top k', SelectKBest(score_func=spec_partial, k=num_fea)))
+    model = Pipeline(pipeline)
+    
+    # set y param to be 0 to demonstrate that this works in unsupervised sense.
+    selected_features = model.fit_transform(X, y=np.zeros(X.shape[0]))
 
     # perform kmeans clustering based on the selected features and repeats 20 times
     nmi_total = 0
@@ -39,5 +40,3 @@ def main():
     print(('NMI:', float(nmi_total)/20))
     print(('ACC:', float(acc_total)/20))
 
-if __name__ == '__main__':
-    main()

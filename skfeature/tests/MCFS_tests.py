@@ -30,8 +30,7 @@ def test_mcfs():
     
     # set y param to be 0 to demonstrate that this works in unsupervised sense.
     selected_features = model.fit_transform(X, y=np.zeros(X.shape[0]))
-    print(selected_features.shape)
-
+    
     # perform evaluation on clustering task
     num_cluster = 20    # number of clusters, it is usually set as the number of classes in the ground truth
     

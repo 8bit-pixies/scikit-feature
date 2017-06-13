@@ -1,7 +1,7 @@
 from . import LCSI
+from skfeature.utility.util import reverse_argsort
 
-
-def mifs(X, y, **kwargs):
+def mifs(X, y, mode="rank", **kwargs):
     """
     This function implements the MIFS feature selection
 
@@ -34,4 +34,9 @@ def mifs(X, y, **kwargs):
         F = LCSI.lcsi(X, y, beta=beta, gamma=0, n_selected_features=n_selected_features)
     else:
         F = LCSI.lcsi(X, y, beta=beta, gamma=0)
-    return F
+    
+    if mode=="index":
+        return np.array(F, dtype=int)
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])

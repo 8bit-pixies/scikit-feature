@@ -1,8 +1,8 @@
 import numpy as np
 from skfeature.utility.construct_W import construct_W
+from skfeature.utility.util import reverse_argsort
 
-
-def trace_ratio(X, y, n_selected_features, **kwargs):
+def trace_ratio(X, y, n_selected_features=None, mode='rank', **kwargs):
     """
     This function implements the trace ratio criterion for feature selection
 
@@ -34,7 +34,8 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
     ---------
     Feiping Nie et al. "Trace Ratio Criterion for Feature Selection." AAAI 2008.
     """
-
+    if n_selected_features is None:
+        n_selected_features = X.shape[1]
     # if 'style' is not specified, use the fisher score way to built two affinity matrix
     if 'style' not in list(kwargs.keys()):
         kwargs['style'] = 'fisher'
@@ -105,8 +106,13 @@ def trace_ratio(X, y, n_selected_features, **kwargs):
     feature_idx = fs_idx[I]
     feature_score = score
     subset_score = k
-
-    return feature_idx, feature_score, subset_score
+    
+    if mode == 'raw':
+        return feature_idx, feature_score, subset_score
+    elif mode == 'index':
+        return feature_idx
+    else:
+        return reverse_argsort(feature_idx)
 
 
 

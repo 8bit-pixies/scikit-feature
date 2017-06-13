@@ -3,9 +3,9 @@ import numpy as np
 from scipy.sparse import *
 from sklearn.metrics.pairwise import rbf_kernel
 from numpy import linalg as LA
+from skfeature.utility.util import reverse_argsort
 
-
-def spec(X, **kwargs):
+def spec(X, y=None, mode='rank', **kwargs):
     """
     This function implements the SPEC feature selection
 
@@ -30,7 +30,20 @@ def spec(X, **kwargs):
     ---------
     Zhao, Zheng and Liu, Huan. "Spectral Feature Selection for Supervised and Unsupervised Learning." ICML 2007.
     """
+    def feature_ranking(score, **kwargs):
+        if 'style' not in kwargs:
+            kwargs['style'] = 0
+        style = kwargs['style']
 
+        # if style = -1 or 0, ranking features in descending order, the higher the score, the more important the feature is
+        if style == -1 or style == 0:
+            idx = np.argsort(score, 0)
+            return idx[::-1]
+        # if style != -1 and 0, ranking features in ascending order, the lower the score, the more important the feature is
+        elif style != -1 and style != 0:
+            idx = np.argsort(score, 0)
+            return idx
+    
     if 'style' not in kwargs:
         kwargs['style'] = 0
     if 'W' not in kwargs:
@@ -96,19 +109,10 @@ def spec(X, **kwargs):
     if style != -1 and style != 0:
         w_fea[w_fea == 1000] = -1000
 
-    return w_fea
+    if mode == 'raw':
+        return w_fea
+    elif mode == 'index':
+        return feature_ranking(w_fea)
+    else:
+        return reverse_argsort(feature_ranking(w_fea))
 
-
-def feature_ranking(score, **kwargs):
-    if 'style' not in kwargs:
-        kwargs['style'] = 0
-    style = kwargs['style']
-
-    # if style = -1 or 0, ranking features in descending order, the higher the score, the more important the feature is
-    if style == -1 or style == 0:
-        idx = np.argsort(score, 0)
-        return idx[::-1]
-    # if style != -1 and 0, ranking features in ascending order, the lower the score, the more important the feature is
-    elif style != -1 and style != 0:
-        idx = np.argsort(score, 0)
-        return idx

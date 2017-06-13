@@ -1,7 +1,7 @@
 from . import LCSI
+from skfeature.utility.util import reverse_argsort
 
-
-def mrmr(X, y, **kwargs):
+def mrmr(X, y, mode="rank", **kwargs):
     """
     This function implements the MRMR feature selection
 
@@ -29,4 +29,8 @@ def mrmr(X, y, **kwargs):
         F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR', n_selected_features=n_selected_features)
     else:
         F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR')
-    return F
+    if mode=="index":
+        return np.array(F, dtype=int)
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])

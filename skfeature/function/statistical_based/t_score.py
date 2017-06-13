@@ -1,7 +1,7 @@
 import numpy as np
+from skfeature.utility.util import reverse_argsort
 
-
-def t_score(X, y):
+def t_score(X, y, mode='rank'):
     """
     This function calculates t_score for each feature, where t_score is only used for binary problem
     t_score = |mean1-mean2|/sqrt(((std1^2)/n1)+((std2^2)/n2)))
@@ -18,7 +18,12 @@ def t_score(X, y):
     F: {numpy array}, shape (n_features,)
         t-score for each feature
     """
-
+    def feature_ranking(F):
+        """
+        Rank features in descending order according to t-score, the higher the t-score, the more important the feature is
+        """
+        idx = np.argsort(F)
+        return idx[::-1]
     n_samples, n_features = X.shape
     F = np.zeros(n_features)
     c = np.unique(y)
@@ -42,13 +47,13 @@ def t_score(X, y):
     else:
         print('y should be guaranteed to a binary class vector')
         exit(0)
-    return np.abs(F)
+    if mode == "index":
+        return np.array(np.abs(F))
+    elif mode == 'feature_ranking':
+        return feature_ranking(np.array(np.abs(F)))
+    else:
+        return reverse_argsort(feature_ranking(np.array(np.abs(F))), X.shape[1])
 
 
-def feature_ranking(F):
-    """
-    Rank features in descending order according to t-score, the higher the t-score, the more important the feature is
-    """
-    idx = np.argsort(F)
-    return idx[::-1]
+
 

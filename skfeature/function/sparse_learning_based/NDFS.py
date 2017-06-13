@@ -3,9 +3,10 @@ import sys
 import math
 import sklearn.cluster
 from skfeature.utility.construct_W import construct_W
+from skfeature.utility.sparse_learning import feature_ranking
+from skfeature.utility.util import reverse_argsort
 
-
-def ndfs(X, **kwargs):
+def ndfs(X, y=None, mode="rank", **kwargs):
     """
     This function implement unsupervised feature selection using nonnegative spectral analysis, i.e.,
     min_{F,W} Tr(F^T L F) + alpha*(||XW-F||_F^2 + beta*||W||_{2,1}) + gamma/2 * ||F^T F - I||_F^2
@@ -39,7 +40,49 @@ def ndfs(X, **kwargs):
     Reference: 
         Li, Zechao, et al. "Unsupervised Feature Selection Using Nonnegative Spectral Analysis." AAAI. 2012.
     """
+    def kmeans_initialization(X, n_clusters):
+        """
+        This function uses kmeans to initialize the pseudo label
 
+        Input
+        -----
+        X: {numpy array}, shape (n_samples, n_features)
+            input data
+        n_clusters: {int}
+            number of clusters
+
+        Output
+        ------
+        Y: {numpy array}, shape (n_samples, n_clusters)
+            pseudo label matrix
+        """
+
+        n_samples, n_features = X.shape
+        kmeans = sklearn.cluster.KMeans(n_clusters=n_clusters, init='k-means++', n_init=10, max_iter=300,
+                                        tol=0.0001, precompute_distances=True, verbose=0,
+                                        random_state=None, copy_x=True, n_jobs=1)
+        kmeans.fit(X)
+        labels = kmeans.labels_
+        Y = np.zeros((n_samples, n_clusters))
+        for row in range(0, n_samples):
+            Y[row, labels[row]] = 1
+        T = np.dot(Y.transpose(), Y)
+        F = np.dot(Y, np.sqrt(np.linalg.inv(T)))
+        F = F + 0.02*np.ones((n_samples, n_clusters))
+        return F
+
+
+    def calculate_obj(X, W, F, L, alpha, beta):
+        """
+        This function calculates the objective function of NDFS
+        """
+        # Tr(F^T L F)
+        T1 = np.trace(np.dot(np.dot(F.transpose(), L), F))
+        T2 = np.linalg.norm(np.dot(X, W) - F, 'fro')
+        T3 = (np.sqrt((W*W).sum(1))).sum()
+        obj = T1 + alpha*(T2 + beta*T3)
+        return obj
+        
     # default gamma is 10e8
     if 'gamma' not in kwargs:
         gamma = 10e8
@@ -109,48 +152,15 @@ def ndfs(X, **kwargs):
 
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break
-    return W
+    F = feature_ranking(W)
+    
+    if mode=="index":
+        return np.array(F, dtype=int)
+    elif mode == "raw":
+        return W
+    else:
+        # make sure that F is the same size??
+        return reverse_argsort(F, size=X.shape[1])
+    
+    
 
-
-def kmeans_initialization(X, n_clusters):
-    """
-    This function uses kmeans to initialize the pseudo label
-
-    Input
-    -----
-    X: {numpy array}, shape (n_samples, n_features)
-        input data
-    n_clusters: {int}
-        number of clusters
-
-    Output
-    ------
-    Y: {numpy array}, shape (n_samples, n_clusters)
-        pseudo label matrix
-    """
-
-    n_samples, n_features = X.shape
-    kmeans = sklearn.cluster.KMeans(n_clusters=n_clusters, init='k-means++', n_init=10, max_iter=300,
-                                    tol=0.0001, precompute_distances=True, verbose=0,
-                                    random_state=None, copy_x=True, n_jobs=1)
-    kmeans.fit(X)
-    labels = kmeans.labels_
-    Y = np.zeros((n_samples, n_clusters))
-    for row in range(0, n_samples):
-        Y[row, labels[row]] = 1
-    T = np.dot(Y.transpose(), Y)
-    F = np.dot(Y, np.sqrt(np.linalg.inv(T)))
-    F = F + 0.02*np.ones((n_samples, n_clusters))
-    return F
-
-
-def calculate_obj(X, W, F, L, alpha, beta):
-    """
-    This function calculates the objective function of NDFS
-    """
-    # Tr(F^T L F)
-    T1 = np.trace(np.dot(np.dot(F.transpose(), L), F))
-    T2 = np.linalg.norm(np.dot(X, W) - F, 'fro')
-    T3 = (np.sqrt((W*W).sum(1))).sum()
-    obj = T1 + alpha*(T2 + beta*T3)
-    return obj

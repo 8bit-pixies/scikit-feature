@@ -1,14 +1,16 @@
 language: python
 
 python:
-  - "3.3"
   - "2.7"
+  - "3.5"
+  - "3.6"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: 
-  - pip install --only-binary=numpy,scipy 
-  - pip install -r requirements.txt  
-  - pip install nosetests
+install:
+  - pip install -qq --upgrade pip setuptools wheel
+  - pip install -qq --only-binary=numpy,scipy numpy
+  - pip install -qq -r requirements.txt
+  - pip install -qq nose
 
 # command to run tests, e.g. python setup.py test
 script: cd skfeature; nosetests

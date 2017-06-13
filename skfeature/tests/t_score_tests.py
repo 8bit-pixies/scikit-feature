@@ -16,7 +16,7 @@ def test_t_score():
     num_fea = 5
 
     # split data into 10 folds
-    kfold = KFold(n_splits=10, shuffle=True)
+    kfold = KFold(n_splits=3, shuffle=True)
 
     # build pipeline
     pipeline = []

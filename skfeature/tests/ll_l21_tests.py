@@ -34,7 +34,7 @@ def test_ll_l21():
     model = Pipeline(pipeline)
     
     # split data into 10 folds
-    kfold = KFold(n_splits=10, shuffle=True)
+    kfold = KFold(n_splits=3, shuffle=True)
     
     results = cross_val_score(model, X, y, cv=kfold)
     print("Accuracy: {}".format(results.mean()))

@@ -20,7 +20,7 @@ def test_alphainvesting():
     X = X[:, :100]
     
     # split data into 10 folds
-    kfold = KFold(n_splits=10, shuffle=True)
+    kfold = KFold(n_splits=3, shuffle=True)
     
     # build pipeline
     pipeline = []

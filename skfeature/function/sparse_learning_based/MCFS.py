@@ -2,9 +2,9 @@ import scipy
 import numpy as np
 from sklearn import linear_model
 from skfeature.utility.construct_W import construct_W
+from skfeature.utility.util import reverse_argsort
 
-
-def mcfs(X, n_selected_features, **kwargs):
+def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
     """
     This function implements unsupervised feature selection for multi-cluster data.
 
@@ -29,7 +29,18 @@ def mcfs(X, n_selected_features, **kwargs):
     ---------
     Cai, Deng et al. "Unsupervised Feature Selection for Multi-Cluster Data." KDD 2010.
     """
-
+    def feature_ranking(W):
+        """
+        This function computes MCFS score and ranking features according to feature weights matrix W
+        """
+        mcfs_score = W.max(1)
+        idx = np.argsort(mcfs_score, 0)
+        idx = idx[::-1]
+        return idx
+    
+    if n_selected_features is None:
+        n_selected_features = int(X.shape[1])
+    
     # use the default affinity matrix
     if 'W' not in kwargs:
         W = construct_W(X)
@@ -59,14 +70,13 @@ def mcfs(X, n_selected_features, **kwargs):
         clf = linear_model.Lars(n_nonzero_coefs=n_selected_features)
         clf.fit(X, Y[:, i])
         W[:, i] = clf.coef_
-    return W
+    
+    if mode=="raw":    
+        return W
+    elif mode=="index":
+        return feature_ranking(W)
+    elif mode=="rank":
+        W_idx = feature_ranking(W)
+        return reverse_argsort(W_idx, X.shape[1])
 
 
-def feature_ranking(W):
-    """
-    This function computes MCFS score and ranking features according to feature weights matrix W
-    """
-    mcfs_score = W.max(1)
-    idx = np.argsort(mcfs_score, 0)
-    idx = idx[::-1]
-    return idx

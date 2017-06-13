@@ -1,10 +1,10 @@
 import math
 import numpy as np
 from numpy import linalg as LA
-from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm
+from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm, feature_ranking, construct_label_matrix_pan
+from skfeature.utility.util import reverse_argsort
 
-
-def proximal_gradient_descent(X, Y, z, **kwargs):
+def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
     """
     This function implements supervised sparse feature selection via l2,1 norm, i.e.,
     min_{W} ||XW-Y||_F^2 + z*||W||_{2,1}
@@ -34,12 +34,23 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
     ---------
         Liu, Jun, et al. "Multi-Task Feature Learning Via Efficient l2,1-Norm Minimization." UAI. 2009.
     """
-
+    def init_factor(W_norm, XW, Y, z):
+        """
+        Initialize the starting point of W, according to the author's code
+        """
+        n_samples, n_classes = XW.shape
+        a = np.inner(np.reshape(XW, n_samples*n_classes), np.reshape(Y, n_samples*n_classes)) - z*W_norm
+        b = LA.norm(XW, 'fro')**2
+        ratio = a / b
+        return ratio
+    
     if 'verbose' not in kwargs:
         verbose = False
     else:
         verbose = kwargs['verbose']
-
+    
+    # convert Y_flat to one hot encoded
+    Y = construct_label_matrix_pan(Y_flat)
     # starting point initialization
     n_samples, n_features = X.shape
     n_samples, n_classes = Y.shape
@@ -136,15 +147,12 @@ def proximal_gradient_descent(X, Y, z, **kwargs):
         # determine weather converge
         if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
             break
-    return W, obj, value_gamma
+    if mode=="raw":
+        return W, obj, value_gamma
+    elif mode=="rank":
+        # feature vector is to sort in ascending order according to the Weight
+        idx = feature_ranking(W).tolist()
+        return reverse_argsort(idx, size=X.shape[1])
+    else:
+        print("Invalid mode {} selected, should be one of \"raw\" or \"rank\"".format(mode))
 
-
-def init_factor(W_norm, XW, Y, z):
-    """
-    Initialize the starting point of W, according to the author's code
-    """
-    n_samples, n_classes = XW.shape
-    a = np.inner(np.reshape(XW, n_samples*n_classes), np.reshape(Y, n_samples*n_classes)) - z*W_norm
-    b = LA.norm(XW, 'fro')**2
-    ratio = a / b
-    return ratio

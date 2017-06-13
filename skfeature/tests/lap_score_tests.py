@@ -28,8 +28,9 @@ def test_lap_score():
     pipeline.append(('select top k', SelectKBest(score_func=lap_score_partial, k=num_fea)))
     model = Pipeline(pipeline)
     
-    # set y param to be 0 to demonstrate that this works in supervised sense.
+    # set y param to be 0 to demonstrate that this works in unsupervised sense.
     selected_features = model.fit_transform(X, y=np.zeros(X.shape[0]))
+    print(selected_features.shape)
 
     # perform evaluation on clustering task
     num_cluster = 20    # number of clusters, it is usually set as the number of classes in the ground truth

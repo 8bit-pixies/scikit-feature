@@ -14,3 +14,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 *  Broke old API in favour of maintaining `scikit-learn` 0.18 compatibility and `SelectKBest`
+
+### Notes
+
+*  `group_fs` does not work in Python 3 and will require further investigation. 
+*  Integration the appropriate `feature_selection` within `scikit-learn` has probably broken sparse filter algorithms

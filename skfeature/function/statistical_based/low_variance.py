@@ -1,7 +1,7 @@
 from sklearn.feature_selection import VarianceThreshold
 
 
-def low_variance_feature_selection(X, threshold):
+def low_variance_feature_selection(X=None, threshold=0.0, mode="rank"):
     """
     This function implements the low_variance feature selection (existing method in scikit-learn)
 
@@ -17,5 +17,8 @@ def low_variance_feature_selection(X, threshold):
     X_new: {numpy array}, shape (n_samples, n_selected_features)
         data with selected features
     """
-    sel = VarianceThreshold(threshold)
-    return sel.fit_transform(X)
+    if mode=="rank":
+        return VarianceThreshold(threshold=threshold)
+    else:
+        sel = VarianceThreshold(threshold)
+        return sel.fit_transform(X)

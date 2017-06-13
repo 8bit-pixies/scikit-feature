@@ -1,22 +1,32 @@
+from nose.tools import *
 import scipy.io
 from skfeature.function.statistical_based import low_variance
 from skfeature.utility import unsupervised_evaluation
+from sklearn.pipeline import Pipeline
+import numpy as np
 
-
-def main():
+def test_low_variance():
     # load data
-    mat = scipy.io.loadmat('../data/BASEHOCK.mat')
+    from functools import partial
+    mat = scipy.io.loadmat('./data/BASEHOCK.mat')
     X = mat['X']    # data
     X = X.astype(float)
     y = mat['Y']    # label
     y = y[:, 0]
 
     p = 0.1    # specify the threshold p to be 0.1
-    num_cluster = 2    # specify the number of clusters to be 2
-
+    num_cluster = 2    # specify the number of clusters to be 2    
+    
+    # build pipeline
+    pipeline = []
+    
+    # this is equivalent to `pipeline.append(('low_variance', VarianceThreshold(threshold=p*(1-p))))`
+    pipeline.append(('low_variance', low_variance.low_variance_feature_selection(threshold=p*(1-p))))
+    model = Pipeline(pipeline)    
+    # set y param to be 0 to demonstrate that this works in unsupervised sense.
     # perform feature selection and obtain the dataset on the selected features
-    selected_features = low_variance.low_variance_feature_selection(X, p*(1-p))
-
+    selected_features = model.fit_transform(X, y=np.zeros(X.shape[0]))  
+        
     # perform kmeans clustering based on the selected features and repeats 20 times
     nmi_total = 0
     acc_total = 0
@@ -28,6 +38,6 @@ def main():
     # output the average NMI and average ACC
     print(('NMI:', float(nmi_total)/20))
     print(('ACC:', float(acc_total)/20))
+    assert_true(float(nmi_total)/20 > 0.0)
+    assert_true(float(acc_total)/20 > 0.5)
 
-if __name__ == '__main__':
-    main()

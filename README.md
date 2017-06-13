@@ -1,4 +1,6 @@
 
+[![PyPI version](https://badge.fury.io/py/sklearn-chappers.svg)](https://badge.fury.io/py/sklearn-chappers) ![CircleCI](https://circleci.com/gh/chappers/scikit-feature/tree/master.svg?style=shield&circle-token=:circle-token)
+
 Overview
 ========
 
@@ -24,4 +26,10 @@ Installation
 
 *  Unpack the source package somewhere
 *  Run `python setup.py install` from the source distribution's top level folder
+
+# From pip
+
+```sh
+pip install sklearn-chappers
+```
 

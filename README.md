@@ -30,6 +30,6 @@ Installation
 # From pip
 
 ```sh
-pip install sklearn-chappers
+pip install skfeature-chappers
 ```
 

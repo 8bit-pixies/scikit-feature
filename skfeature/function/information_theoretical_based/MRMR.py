@@ -1,4 +1,4 @@
-from . import LCSI
+from skfeature.function.information_theoretical_based import LCSI
 from skfeature.utility.util import reverse_argsort
 
 def mrmr(X, y, mode="rank", **kwargs):
@@ -19,6 +19,10 @@ def mrmr(X, y, mode="rank", **kwargs):
     ------
     F: {numpy array}, shape (n_features,)
         index of selected features, F[0] is the most important feature
+    J_CMI: {numpy array}, shape: (n_features,)
+        corresponding objective function value of selected features
+    MIfy: {numpy array}, shape: (n_features,)
+        corresponding mutual information between selected features and response
 
     Reference
     ---------
@@ -26,11 +30,12 @@ def mrmr(X, y, mode="rank", **kwargs):
     """
     if 'n_selected_features' in list(kwargs.keys()):
         n_selected_features = kwargs['n_selected_features']
-        F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR', n_selected_features=n_selected_features)
+        F, J_CMI, MIfy = LCSI.lcsi(X, y, gamma=0, function_name='MRMR', n_selected_features=n_selected_features)
     else:
-        F = LCSI.lcsi(X, y, gamma=0, function_name='MRMR')
+        F, J_CMI, MIfy = LCSI.lcsi(X, y, gamma=0, function_name='MRMR')
     if mode=="index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??
         return reverse_argsort(F, size=X.shape[1])
+

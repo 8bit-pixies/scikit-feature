@@ -124,7 +124,7 @@ def graph_fs(X, y, **kwargs):
         # calculate objective function
         obj[iter] = calculate_obj(X, y, w, lambda1, lambda2, T)
         if verbose:
-            print('obj at iter {}: {}'.format(str(iter), str(obj[iter])))
+            print('obj at iter {0}: {1}'.format(iter, obj[iter]))
         iter += 1
     return w, obj, q
 

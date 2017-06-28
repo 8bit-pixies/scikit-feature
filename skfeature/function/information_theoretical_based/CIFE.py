@@ -1,4 +1,4 @@
-from . import LCSI
+from skfeature.function.information_theoretical_based import LCSI
 from skfeature.utility.util import reverse_argsort
 
 def cife(X, y, mode="rank", **kwargs):
@@ -19,6 +19,10 @@ def cife(X, y, mode="rank", **kwargs):
     ------
     F: {numpy array}, shape (n_features,)
         index of selected features, F[0] is the most important feature
+    J_CMI: {numpy array}, shape: (n_features,)
+        corresponding objective function value of selected features
+    MIfy: {numpy array}, shape: (n_features,)
+        corresponding mutual information between selected features and response
 
     Reference
     ---------
@@ -27,9 +31,9 @@ def cife(X, y, mode="rank", **kwargs):
     
     if 'n_selected_features' in list(kwargs.keys()):
         n_selected_features = kwargs['n_selected_features']
-        F = LCSI.lcsi(X[:], y, beta=1, gamma=1, n_selected_features=n_selected_features)
+        F, J_CMI, MIfy = LCSI.lcsi(X, y, beta=1, gamma=1, n_selected_features=n_selected_features)
     else:
-        F = LCSI.lcsi(X[:], y, beta=1, gamma=1)
+        F, J_CMI, MIfy = LCSI.lcsi(X, y, beta=1, gamma=1)
     
     if mode=="index":
         return F

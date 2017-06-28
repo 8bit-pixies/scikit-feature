@@ -149,7 +149,7 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
         obj[iter_step] += z*calculate_l21_norm(W)
 
         if verbose:
-            print(('obj at iter ' + str(iter_step+1) + ': ' + str(obj[iter_step])))
+            print('obj at iter {0}: {1}'.format(iter_step+1, obj[iter_step]))
 
         if flag is True:
             break

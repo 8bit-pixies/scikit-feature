@@ -4,6 +4,7 @@ from scipy.sparse import *
 from sklearn.metrics.pairwise import rbf_kernel
 from numpy import linalg as LA
 from skfeature.utility.util import reverse_argsort
+import pandas as pd
 
 
 def similiarity_classification(X, y):

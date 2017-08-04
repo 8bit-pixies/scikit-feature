@@ -5,6 +5,45 @@ from sklearn.metrics.pairwise import rbf_kernel
 from numpy import linalg as LA
 from skfeature.utility.util import reverse_argsort
 
+
+def similiarity_classification(X, y):
+    """
+    Calculates similarity based on labels using X (data) y (labels)
+    
+    note that it only considers the labels
+    """
+    y_series = pd.Series(y)
+    y_val = y_series.value_counts(normalize=True)
+    
+    y_size = len(y)
+    sim_matrix = np.zeros((len(y), len(y)))
+    for s_i in range(y_size):
+        for s_j in range(y_size):
+            sim_matrix[s_i, s_j] = y_val[y[s_i]] if y[s_i] == y[s_j] else 0
+    return sim_matrix
+
+def similarity_regression(X, y, n_neighbors=None):
+    """
+    Calculates similarity based on labels using X (data) y (labels)
+    
+    this considers X, by use knn first and then a distance metric - in this setting
+    we will use the rbf kernel for similarity. 
+    
+    Then if X is "far" in the knn sense we will set to 0
+    we can determine "distance" based on clusters? that is if we build
+    a cluster around this obs, which other observations are closest. 
+    
+    
+    """
+    from sklearn.neighbors import NearestNeighbors
+    if n_neighbors is None:
+        n_neighbors = max(int(X.shape[0] * 0.05)+1, 2)
+    
+    # use NerestNeighbors to determine closest obs
+    y_ = np.array(y).reshape(-1,1)
+    nbrs = NearestNeighbors(n_neighbors=n_neighbors, algorithm='auto').fit(y_)
+    return np.multiply(nbrs.kneighbors_graph(y_).toarray(), rbf_kernel(X, gamma=1))
+
 def spec(X, y=None, mode='rank', **kwargs):
     """
     This function implements the SPEC feature selection
@@ -46,9 +85,17 @@ def spec(X, y=None, mode='rank', **kwargs):
     
     if 'style' not in kwargs:
         kwargs['style'] = 0
+    if 'is_classification' not in kwargs:
+        # if y is available then we do supervised SPEC algo.
+        kwargs['is_classification'] = True    
     if 'W' not in kwargs:
-        kwargs['W'] = rbf_kernel(X, gamma=1)
-
+        if y is None:
+            kwargs['W'] = rbf_kernel(X, gamma=1)
+        elif kwargs['is_classification']:
+            kwargs['W'] = similiarity_classification(X, y)
+        else:
+            kwargs['W'] = similarity_regression(X, y, kwargs.get('n_neighbors', None))
+    
     style = kwargs['style']
     W = kwargs['W']
     if type(W) is numpy.ndarray:

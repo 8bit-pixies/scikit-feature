@@ -1,4 +1,5 @@
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup
 
 """
     This program is free software; you can redistribute it and/or modify
@@ -47,3 +48,11 @@ setup(
     url = URL,
     packages =['skfeature', 'skfeature.utility','skfeature.function','skfeature.function.information_theoretical_based','skfeature.function.similarity_based','skfeature.function.sparse_learning_based','skfeature.function.statistical_based','skfeature.function.streaming','skfeature.function.structure','skfeature.function.wrapper',] ,
 )
+
+
+# pushing to pypi:
+# python setup.py sdist
+# python setup.py bdist_wheel --universal
+# twine upload dist/*
+
+

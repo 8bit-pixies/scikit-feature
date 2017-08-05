@@ -82,7 +82,7 @@ def ndfs(X, y=None, mode="rank", **kwargs):
         T3 = (np.sqrt((W*W).sum(1))).sum()
         obj = T1 + alpha*(T2 + beta*T3)
         return obj
-        
+    
     # default gamma is 10e8
     if 'gamma' not in kwargs:
         gamma = 10e8
@@ -123,7 +123,7 @@ def ndfs(X, y=None, mode="rank", **kwargs):
 
     # build laplacian matrix
     L = np.array(W.sum(1))[:, 0] - W
-
+    
     max_iter = 1000
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):

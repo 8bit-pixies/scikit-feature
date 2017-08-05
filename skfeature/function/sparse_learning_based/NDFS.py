@@ -103,7 +103,7 @@ def ndfs(X, y=None, mode="rank", **kwargs):
         beta = kwargs['beta']
     if 'F0' not in kwargs:
         if 'n_clusters' not in kwargs:
-            print("either F0 or n_clusters should be provided", file=sys.stderr)
+            raise Exception("either F0 or n_clusters should be provided")
         else:
             # initialize F
             n_clusters = kwargs['n_clusters']

@@ -1,6 +1,6 @@
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.util import reverse_argsort
-
+import numpy as np
 def cmim(X, y, mode="rank", **kwargs):
     """
     This function implements the CMIM feature selection.

@@ -1,6 +1,6 @@
 from skfeature.function.information_theoretical_based import LCSI
 from skfeature.utility.util import reverse_argsort
-
+import numpy as np
 
 def mifs(X, y, mode="rank", **kwargs):
     """

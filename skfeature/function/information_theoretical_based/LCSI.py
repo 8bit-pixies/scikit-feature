@@ -1,5 +1,5 @@
 from skfeature.utility.entropy_estimators import *
-
+import numpy as np
 
 def lcsi(X, y, **kwargs):
     """

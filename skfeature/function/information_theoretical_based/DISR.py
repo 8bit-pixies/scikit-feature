@@ -1,6 +1,7 @@
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.mutual_information import conditional_entropy
 from skfeature.utility.util import reverse_argsort
+import numpy as np
 
 def disr(X, y, mode="rank", **kwargs):
     """

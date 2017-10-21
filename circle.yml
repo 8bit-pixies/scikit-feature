@@ -1,6 +1,6 @@
 dependencies:
   override:
-    - pip install scikit-learn scipy nose numpy
+    - pip install scikit-learn scipy nose numpy pandas
 
 deployment:
   release:

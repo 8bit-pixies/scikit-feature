@@ -11,7 +11,6 @@ from skfeature.function.information_theoretical_based import CMIM
 
 import unittest
 
-@unittest.skip("temporarily disabled")
 def test_cmim():
     # load data
     mat = scipy.io.loadmat('./data/colon.mat')

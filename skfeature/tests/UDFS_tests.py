@@ -10,7 +10,6 @@ from functools import partial
 
 import unittest
 
-@unittest.skip("temporarily disabled")
 def test_udfs():
     # load data
     mat = scipy.io.loadmat('./data/COIL20.mat')

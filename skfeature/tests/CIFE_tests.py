@@ -12,7 +12,6 @@ from skfeature.function.information_theoretical_based import CIFE
 
 import unittest
 
-@unittest.skip("temporarily disabled")
 def test_cife():
     # load data
     mat = scipy.io.loadmat('./data/colon.mat')

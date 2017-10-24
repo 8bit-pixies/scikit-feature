@@ -10,7 +10,6 @@ from sklearn.pipeline import Pipeline
 
 import unittest
 
-@unittest.skip("temporarily disabled")
 def test_ls_l21():
     # load data
     from functools import partial

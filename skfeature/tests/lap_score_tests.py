@@ -9,7 +9,6 @@ import numpy as np
 
 import unittest
 
-@unittest.skip("temporarily disabled")
 def test_lap_score():
     # load data
     from functools import partial

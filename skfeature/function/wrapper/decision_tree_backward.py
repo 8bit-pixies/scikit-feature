@@ -34,7 +34,7 @@ def decision_tree_backward(X, y, mode="rank", n_selected_features=None):
     clf = DecisionTreeClassifier()
 
     # selected feature set, initialized to contain all features
-    F = range(n_features)
+    F = list(range(n_features))
     count = n_features
 
     while count > n_selected_features:
@@ -42,9 +42,9 @@ def decision_tree_backward(X, y, mode="rank", n_selected_features=None):
         for i in range(n_features):
             if i in F:
                 F.remove(i)
-                X_tmp = X[:, F]                
+                X_tmp = X[:, F]
                 results = cross_val_score(clf, X_tmp, y, cv=kfold)
-                acc = results.mean()    
+                acc = results.mean()
                 F.append(i)
                 # record the feature which results in the largest accuracy
                 if acc > max_acc:

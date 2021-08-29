@@ -3,7 +3,7 @@ install-python-ci-dependencies:
 
 
 test-python:
-	pytest -n 8 tests
+	pytest tests
 
 format-python:
 	# Sort

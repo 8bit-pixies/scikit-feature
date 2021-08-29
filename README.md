@@ -1,5 +1,5 @@
 
-[![PyPI version](https://badge.fury.io/py/skfeature-chappers.svg)](https://badge.fury.io/py/skfeature-chappers) [![CircleCI](https://circleci.com/gh/chappers/scikit-feature.svg?style=svg)](https://circleci.com/gh/chappers/scikit-feature)
+[![PyPI version](https://badge.fury.io/py/skfeature-chappers.svg)](https://badge.fury.io/py/skfeature-chappers) [![codecov](https://codecov.io/gh/charliec443/scikit-feature/branch/master/graph/badge.svg?token=B7RQ11SAAN)](https://codecov.io/gh/charliec443/scikit-feature)
 
 `scikit-feature` is an open-source (GNU General Public License v2.0) feature selection repository in Python developed by Data Mining and Machine Learning Lab at Arizona State University. 
 

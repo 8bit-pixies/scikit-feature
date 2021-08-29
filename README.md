@@ -22,7 +22,7 @@ Installation
 # From Sources
 
 *  Unpack the source package somewhere
-*  Run `python setup.py install` from the source distribution's top level folder
+*  Run `pip install -e .` from the source distribution's top level folder
 
 # From pip
 

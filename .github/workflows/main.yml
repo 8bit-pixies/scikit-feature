@@ -24,11 +24,10 @@ jobs:
       - name: Test Python
         run: pytest --cov=./ --cov-report=xml --verbose --color=yes tests
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: irongut/CodeCoverageSummary@v1.0.1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: unittests
-          env_vars: OS,PYTHON
-          fail_ci_if_error: true
-          verbose: true
+          filename: ./coverage.xml
+          badge: true
+          format: 'markdown'
+          output: 'both'
+

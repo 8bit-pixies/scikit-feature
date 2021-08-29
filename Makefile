@@ -1,3 +1,6 @@
+install-python-ci:
+	pip install -e ".[ci]"
+
 
 test-python:
 	pytest -n 8 tests

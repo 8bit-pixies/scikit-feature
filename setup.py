@@ -33,12 +33,24 @@ MAINTAINER_EMAIL = "chpmn.siu@gmail.com"
 
 URL = "https://github.com/chappers/scikit-feature"
 
-VERSION = "1.0.3"
+VERSION = "1.1.0"
 
 REQUIRED = [
     "scikit-learn",
     "pandas",
     "numpy"
+]
+
+REQUIRED_CI = [
+    "pytest",
+    "pytest-cov",
+    "black",
+    "isort",
+    "flake8",
+    "mkdocs", "mkdocs-material",
+    "mkdocstrings",
+    "pytkdocs[numpy-style]"
+
 ]
 
 setup(
@@ -51,6 +63,9 @@ setup(
     author_email=AUTHOR_EMAIL,
     maintainer=MAINTAINER,
     maintainer_email=MAINTAINER_EMAIL,
+    extras_require={
+        "ci": REQUIRED_CI
+    },
     url=URL,
     packages=[
         "skfeature",

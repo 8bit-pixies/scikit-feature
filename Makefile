@@ -1,4 +1,4 @@
-install-python-ci:
+install-python-ci-dependencies:
 	pip install -e ".[ci]"
 
 

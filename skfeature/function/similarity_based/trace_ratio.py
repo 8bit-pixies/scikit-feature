@@ -1,8 +1,10 @@
 import numpy as np
+
 from skfeature.utility.construct_W import construct_W
 from skfeature.utility.util import reverse_argsort
 
-def trace_ratio(X, y, n_selected_features=None, mode='rank', **kwargs):
+
+def trace_ratio(X, y, n_selected_features=None, mode="rank", **kwargs):
     """
     This function implements the trace ratio criterion for feature selection
 
@@ -37,45 +39,45 @@ def trace_ratio(X, y, n_selected_features=None, mode='rank', **kwargs):
     if n_selected_features is None:
         n_selected_features = X.shape[1]
     # if 'style' is not specified, use the fisher score way to built two affinity matrix
-    if 'style' not in list(kwargs.keys()):
-        kwargs['style'] = 'fisher'
+    if "style" not in list(kwargs.keys()):
+        kwargs["style"] = "fisher"
     # get the way to build affinity matrix, 'fisher' or 'laplacian'
-    style = kwargs['style']
+    style = kwargs["style"]
     n_samples, n_features = X.shape
 
     # if 'verbose' is not specified, do not output the value of objective function
-    if 'verbose' not in kwargs:
-        kwargs['verbose'] = False
-    verbose = kwargs['verbose']
+    if "verbose" not in kwargs:
+        kwargs["verbose"] = False
+    verbose = kwargs["verbose"]
 
-    if style is 'fisher':
-        kwargs_within = {"neighbor_mode": "supervised", "fisher_score": True, 'y': y}
+    if style is "fisher":
+        kwargs_within = {"neighbor_mode": "supervised", "fisher_score": True, "y": y}
         # build within class and between class laplacian matrix L_w and L_b
         W_within = construct_W(X, **kwargs_within)
         L_within = np.eye(n_samples) - W_within
-        L_tmp = np.eye(n_samples) - np.ones([n_samples, n_samples])/n_samples
+        L_tmp = np.eye(n_samples) - np.ones([n_samples, n_samples]) / n_samples
         L_between = L_within - L_tmp
 
-    if style is 'laplacian':
-        kwargs_within = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, 't': 1}
+    if style is "laplacian":
+        kwargs_within = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, "t": 1}
         # build within class and between class laplacian matrix L_w and L_b
         W_within = construct_W(X, **kwargs_within)
         D_within = np.diag(np.array(W_within.sum(1))[:, 0])
         L_within = D_within - W_within
-        W_between = np.dot(np.dot(D_within, np.ones([n_samples, n_samples])), D_within)/np.sum(D_within)
+        W_between = np.dot(np.dot(D_within, np.ones([n_samples, n_samples])), D_within) / np.sum(D_within)
         D_between = np.diag(np.array(W_between.sum(1)))
         L_between = D_between - W_between
 
     # build X'*L_within*X and X'*L_between*X
-    L_within = (np.transpose(L_within) + L_within)/2
-    L_between = (np.transpose(L_between) + L_between)/2
+    L_within = (np.transpose(L_within) + L_within) / 2
+    L_between = (np.transpose(L_between) + L_between) / 2
     S_within = np.array(np.dot(np.dot(np.transpose(X), L_within), X))
     S_between = np.array(np.dot(np.dot(np.transpose(X), L_between), X))
 
     # reflect the within-class or local affinity relationship encoded on graph, Sw = X*Lw*X'
-    S_within = (np.transpose(S_within) + S_within)/2
+    S_within = (np.transpose(S_within) + S_within) / 2
     # reflect the between-class or global affinity relationship encoded on graph, Sb = X*Lb*X'
-    S_between = (np.transpose(S_between) + S_between)/2
+    S_between = (np.transpose(S_between) + S_between) / 2
 
     # take the absolute values of diagonal
     s_within = np.absolute(S_within.diagonal())
@@ -84,20 +86,20 @@ def trace_ratio(X, y, n_selected_features=None, mode='rank', **kwargs):
 
     # preprocessing
     fs_idx = np.argsort(np.divide(s_between, s_within), 0)[::-1]
-    k = np.sum(s_between[0:n_selected_features])/np.sum(s_within[0:n_selected_features])
+    k = np.sum(s_between[0:n_selected_features]) / np.sum(s_within[0:n_selected_features])
     s_within = s_within[fs_idx[0:n_selected_features]]
     s_between = s_between[fs_idx[0:n_selected_features]]
 
     # iterate util converge
     count = 0
     while True:
-        score = np.sort(s_between-k*s_within)[::-1]
-        I = np.argsort(s_between-k*s_within)[::-1]
+        score = np.sort(s_between - k * s_within)[::-1]
+        I = np.argsort(s_between - k * s_within)[::-1]
         idx = I[0:n_selected_features]
         old_k = k
-        k = np.sum(s_between[idx])/np.sum(s_within[idx])
+        k = np.sum(s_between[idx]) / np.sum(s_within[idx])
         if verbose:
-            print('obj at iter {0}: {1}'.format(count+1, k))
+            print("obj at iter {0}: {1}".format(count + 1, k))
         count += 1
         if abs(k - old_k) < 1e-3:
             break
@@ -106,13 +108,10 @@ def trace_ratio(X, y, n_selected_features=None, mode='rank', **kwargs):
     feature_idx = fs_idx[I]
     feature_score = score
     subset_score = k
-    
-    if mode == 'raw':
+
+    if mode == "raw":
         return feature_idx, feature_score, subset_score
-    elif mode == 'index':
+    elif mode == "index":
         return feature_idx
     else:
         return reverse_argsort(feature_idx)
-
-
-

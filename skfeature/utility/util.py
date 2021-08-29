@@ -1,6 +1,8 @@
+import random
+
 import numpy as np
 from scipy.stats import rankdata
-import random 
+
 
 def reverse_argsort(X, size=None):
     """
@@ -17,6 +19,7 @@ def reverse_argsort(X, size=None):
     F: {numpy array} ranking of the feature indices that are sklearn friendly
     
     """
+
     def dedup(seq):
         """
         Based on uniqifiers benchmarks
@@ -25,12 +28,12 @@ def reverse_argsort(X, size=None):
         seen = set()
         seen_add = seen.add
         return [x for x in seq if not (x in seen or seen_add(x))]
-    
+
     X = dedup(list(X))
     if size is None:
         X = np.array(X)
-        return np.array(rankdata(-X)-1, dtype=np.int)
-    
+        return np.array(rankdata(-X) - 1, dtype=int)
+
     else:
         # else we have to pad it with the values...
         X_all = list(range(size))
@@ -40,6 +43,3 @@ def reverse_argsort(X, size=None):
         X_unseen_shuffle = random.sample(X_unseen[:], len(X_unseen))
         X_obj = X_raw + X_unseen_shuffle
         return reverse_argsort(X_obj[:])
-    
-    
-    

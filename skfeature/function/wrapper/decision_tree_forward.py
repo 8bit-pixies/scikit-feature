@@ -1,7 +1,7 @@
 import numpy as np
+from sklearn.model_selection import KFold, cross_val_score
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
+
 from skfeature.utility.util import reverse_argsort
 
 
@@ -34,14 +34,14 @@ def decision_tree_forward(X, y, mode="rank", n_selected_features=None):
     # selected feature set, initialized to be empty
     F = []
     count = 0
-    while count < n_selected_features-1:
+    while count < n_selected_features - 1:
         max_acc = 0
         for i in range(n_features):
             if i not in F:
                 F.append(i)
                 X_tmp = X[:, F]
                 results = cross_val_score(clf, X_tmp, y, cv=kfold)
-                acc = results.mean()                
+                acc = results.mean()
                 F.pop()
                 # record the feature which results in the largest accuracy
                 if acc > max_acc:
@@ -54,4 +54,3 @@ def decision_tree_forward(X, y, mode="rank", n_selected_features=None):
         return np.array(F)
     else:
         return reverse_argsort(F, X.shape[1])
-

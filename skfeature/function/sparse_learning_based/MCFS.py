@@ -1,8 +1,10 @@
-import scipy
 import numpy as np
+import scipy
 from sklearn import linear_model
+
 from skfeature.utility.construct_W import construct_W
 from skfeature.utility.util import reverse_argsort
+
 
 def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
     """
@@ -29,6 +31,7 @@ def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
     ---------
     Cai, Deng et al. "Unsupervised Feature Selection for Multi-Cluster Data." KDD 2010.
     """
+
     def feature_ranking(W):
         """
         This function computes MCFS score and ranking features according to feature weights matrix W
@@ -37,20 +40,20 @@ def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
         idx = np.argsort(mcfs_score, 0)
         idx = idx[::-1]
         return idx
-    
+
     if n_selected_features is None:
         n_selected_features = int(X.shape[1])
-    
+
     # use the default affinity matrix
-    if 'W' not in kwargs:
+    if "W" not in kwargs:
         W = construct_W(X)
     else:
-        W = kwargs['W']
+        W = kwargs["W"]
     # default number of clusters is 5
-    if 'n_clusters' not in kwargs:
+    if "n_clusters" not in kwargs:
         n_clusters = 5
     else:
-        n_clusters = kwargs['n_clusters']
+        n_clusters = kwargs["n_clusters"]
 
     # solve the generalized eigen-decomposition problem and get the top K
     # eigen-vectors with respect to the smallest eigenvalues
@@ -61,7 +64,7 @@ def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
     WT = W.T
     W[W < WT] = WT[W < WT]
     eigen_value, ul = scipy.linalg.eigh(a=W)
-    Y = np.dot(W_norm, ul[:, -1*n_clusters-1:-1])
+    Y = np.dot(W_norm, ul[:, -1 * n_clusters - 1 : -1])
 
     # solve K L1-regularized regression problem using LARs algorithm with cardinality constraint being d
     n_sample, n_feature = X.shape
@@ -70,13 +73,11 @@ def mcfs(X, y=None, n_selected_features=None, mode="rank", **kwargs):
         clf = linear_model.Lars(n_nonzero_coefs=n_selected_features)
         clf.fit(X, Y[:, i])
         W[:, i] = clf.coef_
-    
-    if mode=="raw":    
+
+    if mode == "raw":
         return W
-    elif mode=="index":
+    elif mode == "index":
         return feature_ranking(W)
-    elif mode=="rank":
+    elif mode == "rank":
         W_idx = feature_ranking(W)
         return reverse_argsort(W_idx, X.shape[1])
-
-

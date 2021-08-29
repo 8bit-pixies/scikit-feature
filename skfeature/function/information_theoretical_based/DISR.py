@@ -1,7 +1,9 @@
+import numpy as np
+
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.mutual_information import conditional_entropy
 from skfeature.utility.util import reverse_argsort
-import numpy as np
+
 
 def disr(X, y, mode="rank", **kwargs):
     """
@@ -43,8 +45,8 @@ def disr(X, y, mode="rank", **kwargs):
     # indicate whether the user specifies the number of features
     is_n_selected_features_specified = False
 
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
+    if "n_selected_features" in list(kwargs.keys()):
+        n_selected_features = kwargs["n_selected_features"]
         is_n_selected_features_specified = True
 
     # sum stores sum_j(I(f,fj;y)/H(f,fj,y)) for each feature f
@@ -75,12 +77,16 @@ def disr(X, y, mode="rank", **kwargs):
                 break
 
         # we assign an extreme small value to j_disr to ensure that it is smaller than all possible value of j_disr
-        j_disr = -1E30
+        j_disr = -1e30
         for i in range(n_features):
             if i not in F:
                 f = X[:, i]
                 t2 = midd(f_select, y) + cmidd(f, y, f_select)
-                t3 = entropyd(f) + conditional_entropy(f_select, f) + (conditional_entropy(y, f_select) - cmidd(y, f, f_select))
+                t3 = (
+                    entropyd(f)
+                    + conditional_entropy(f_select, f)
+                    + (conditional_entropy(y, f_select) - cmidd(y, f, f_select))
+                )
                 sum[i] += np.true_divide(t2, t3)
                 # record the largest j_disr and the corresponding feature index
                 if sum[i] > j_disr:
@@ -91,8 +97,7 @@ def disr(X, y, mode="rank", **kwargs):
         MIfy.append(t1[idx])
         f_select = X[:, idx]
 
-    if mode=="index":
+    if mode == "index":
         return F
     else:
         return reverse_argsort(F, X.shape[1])
-

@@ -17,7 +17,7 @@ def low_variance_feature_selection(X=None, threshold=0.0, mode="rank"):
     X_new: {numpy array}, shape (n_samples, n_selected_features)
         data with selected features
     """
-    if mode=="rank":
+    if mode == "rank":
         return VarianceThreshold(threshold=threshold)
     else:
         sel = VarianceThreshold(threshold)

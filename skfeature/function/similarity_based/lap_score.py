@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.sparse import *
+
 from skfeature.utility.construct_W import construct_W
 from skfeature.utility.util import reverse_argsort
+
 
 def lap_score(X, y=None, mode="rank", **kwargs):
     """
@@ -36,12 +38,12 @@ def lap_score(X, y=None, mode="rank", **kwargs):
         """
         idx = np.argsort(score, 0)
         return idx
-    
+
     # if 'W' is not specified, use the default W
-    if 'W' not in list(kwargs.keys()):
+    if "W" not in list(kwargs.keys()):
         W = construct_W(X)
     # construct the affinity matrix W
-    W = kwargs['W']
+    W = kwargs["W"]
     # build the diagonal D matrix from affinity matrix W
     D = np.array(W.sum(axis=1))
     L = W
@@ -51,19 +53,18 @@ def lap_score(X, y=None, mode="rank", **kwargs):
     t1 = np.transpose(np.dot(Xt, D.todense()))
     t2 = np.transpose(np.dot(Xt, L.todense()))
     # compute the numerator of Lr
-    D_prime = np.sum(np.multiply(t1, X), 0) - np.multiply(tmp, tmp)/D.sum()
+    D_prime = np.sum(np.multiply(t1, X), 0) - np.multiply(tmp, tmp) / D.sum()
     # compute the denominator of Lr
-    L_prime = np.sum(np.multiply(t2, X), 0) - np.multiply(tmp, tmp)/D.sum()
+    L_prime = np.sum(np.multiply(t2, X), 0) - np.multiply(tmp, tmp) / D.sum()
     # avoid the denominator of Lr to be 0
     D_prime[D_prime < 1e-12] = 10000
 
     # compute laplacian score for all features
-    score = 1 - np.array(np.multiply(L_prime, 1/D_prime))[0, :]
+    score = 1 - np.array(np.multiply(L_prime, 1 / D_prime))[0, :]
     F = feature_ranking(np.transpose(score))
 
-    if mode=="index":
+    if mode == "index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??
         return reverse_argsort(F, size=X.shape[1])
-

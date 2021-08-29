@@ -1,6 +1,7 @@
 import numpy as np
-from sklearn.feature_selection import chi2
 from scipy.stats import rankdata
+from sklearn.feature_selection import chi2
+
 
 def chi_square(X, y, mode="rank"):
     """
@@ -24,17 +25,16 @@ def chi_square(X, y, mode="rank"):
     F: {numpy array}, shape (n_features,)
         chi-square score for each feature
     """
-    if mode not in ['rank', 'raw', 'index']:
+    if mode not in ["rank", "raw", "index"]:
         print('mode is not one of "rank", "raw", "index"')
-        raise()
-    
+        raise ()
+
     F, pval = chi2(X, y)
-    
+
     if mode == "raw":
         return F
-    elif mode == 'rank':
+    elif mode == "rank":
         return rankdata(F)
     else:
         idx = np.argsort(F)
         return idx[::-1]
-        

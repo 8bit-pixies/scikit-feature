@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
+
 from skfeature.utility.util import reverse_argsort
+
 
 def reliefF(X, y, mode="rank", **kwargs):
     """
@@ -27,6 +29,7 @@ def reliefF(X, y, mode="rank", **kwargs):
     Robnik-Sikonja, Marko et al. "Theoretical and empirical analysis of relieff and rrelieff." Machine Learning 2003.
     Zhao, Zheng et al. "On Similarity Preserving Feature Selection." TKDE 2013.
     """
+
     def feature_ranking(score):
         """
         Rank features in descending order according to reliefF score, the higher the reliefF score, the more important the
@@ -42,7 +45,7 @@ def reliefF(X, y, mode="rank", **kwargs):
     n_samples, n_features = X.shape
 
     # calculate pairwise distances between instances
-    distance = pairwise_distances(X, metric='manhattan')
+    distance = pairwise_distances(X, metric="manhattan")
 
     score = np.zeros(n_features)
 
@@ -60,11 +63,11 @@ def reliefF(X, y, mode="rank", **kwargs):
         del c[c.index(y[idx])]
 
         p_dict = dict()
-        p_label_idx = float(len(y[y == y[idx]]))/float(n_samples)
+        p_label_idx = float(len(y[y == y[idx]])) / float(n_samples)
 
         for label in c:
-            p_label_c = float(len(y[y == label]))/float(n_samples)
-            p_dict[label] = p_label_c/(1-p_label_idx)
+            p_label_c = float(len(y[y == label])) / float(n_samples)
+            p_dict[label] = p_label_c / (1 - p_label_idx)
             near_miss[label] = []
 
         distance_sort = []
@@ -90,28 +93,26 @@ def reliefF(X, y, mode="rank", **kwargs):
                         stop_dict[distance_sort[i][2]] = 1
             stop = True
             for (key, value) in list(stop_dict.items()):
-                    if value != 1:
-                        stop = False
+                if value != 1:
+                    stop = False
             if stop:
                 break
 
         # update reliefF score
         near_hit_term = np.zeros(n_features)
         for ele in near_hit:
-            near_hit_term = np.array(abs(self_fea-X[ele, :]))+np.array(near_hit_term)
+            near_hit_term = np.array(abs(self_fea - X[ele, :])) + np.array(near_hit_term)
 
         near_miss_term = dict()
         for (label, miss_list) in list(near_miss.items()):
             near_miss_term[label] = np.zeros(n_features)
             for ele in miss_list:
-                near_miss_term[label] = np.array(abs(self_fea-X[ele, :]))+np.array(near_miss_term[label])
-            score += near_miss_term[label]/(k*p_dict[label])
-        score -= near_hit_term/k
-    if mode == 'raw':
+                near_miss_term[label] = np.array(abs(self_fea - X[ele, :])) + np.array(near_miss_term[label])
+            score += near_miss_term[label] / (k * p_dict[label])
+        score -= near_hit_term / k
+    if mode == "raw":
         return score
-    elif mode == 'index':
+    elif mode == "index":
         return feature_ranking(score)
-    elif mode == 'rank':
+    elif mode == "rank":
         return reverse_argsort(feature_ranking(score), X.shape[1])
-
-

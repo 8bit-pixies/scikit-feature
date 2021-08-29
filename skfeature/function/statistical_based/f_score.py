@@ -1,6 +1,7 @@
 import numpy as np
-from sklearn.feature_selection import f_classif
 from scipy.stats import rankdata
+from sklearn.feature_selection import f_classif
+
 
 def f_score(X, y, mode="rank"):
     """
@@ -19,18 +20,16 @@ def f_score(X, y, mode="rank"):
     F: {numpy array}, shape (n_features,)
         f-score for each feature
     """
-    if mode not in ['rank', 'raw', 'index']:
+    if mode not in ["rank", "raw", "index"]:
         print('mode is not one of "rank", "raw", "index"')
-        raise()
-    
+        raise ()
+
     F, pval = f_classif(X, y)
-    
+
     if mode == "raw":
         return F
-    elif mode == 'rank':
+    elif mode == "rank":
         return rankdata(F)
     else:
         idx = np.argsort(F)
         return idx[::-1]
-
-

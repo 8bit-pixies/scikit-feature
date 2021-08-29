@@ -1,8 +1,16 @@
 import math
+
 import numpy as np
 from numpy import linalg as LA
-from skfeature.utility.sparse_learning import euclidean_projection, calculate_l21_norm, feature_ranking, construct_label_matrix_pan
+
+from skfeature.utility.sparse_learning import (
+    calculate_l21_norm,
+    construct_label_matrix_pan,
+    euclidean_projection,
+    feature_ranking,
+)
 from skfeature.utility.util import reverse_argsort
+
 
 def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
     """
@@ -34,21 +42,22 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
     ---------
         Liu, Jun, et al. "Multi-Task Feature Learning Via Efficient l2,1-Norm Minimization." UAI. 2009.
     """
+
     def init_factor(W_norm, XW, Y, z):
         """
         Initialize the starting point of W, according to the author's code
         """
         n_samples, n_classes = XW.shape
-        a = np.inner(np.reshape(XW, n_samples*n_classes), np.reshape(Y, n_samples*n_classes)) - z*W_norm
-        b = LA.norm(XW, 'fro')**2
+        a = np.inner(np.reshape(XW, n_samples * n_classes), np.reshape(Y, n_samples * n_classes)) - z * W_norm
+        b = LA.norm(XW, "fro") ** 2
         ratio = a / b
         return ratio
-    
-    if 'verbose' not in kwargs:
+
+    if "verbose" not in kwargs:
         verbose = False
     else:
-        verbose = kwargs['verbose']
-    
+        verbose = kwargs["verbose"]
+
     # convert Y_flat to one hot encoded
     Y = construct_label_matrix_pan(Y_flat)
     # starting point initialization
@@ -69,8 +78,8 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
 
     if W_norm >= 1e-6:
         ratio = init_factor(W_norm, XW, Y, z)
-        W = ratio*W
-        XW = ratio*XW
+        W = ratio * W
+        XW = ratio * XW
 
     # starting the main program, the Armijo Goldstein line search scheme + accelerated gradient descent
     # initialize step size gamma = 1
@@ -78,7 +87,7 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
 
     # assign Wp with W, and XWp with XW
     XWp = XW
-    WWp =np.zeros((n_features, n_classes))
+    WWp = np.zeros((n_features, n_classes))
     alphap = 0
     alpha = 1
 
@@ -90,11 +99,11 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):
         # step1: compute search point S based on Wp and W (with beta)
-        beta = (alphap-1)/alpha
-        S = W + beta*WWp
+        beta = (alphap - 1) / alpha
+        S = W + beta * WWp
 
         # step2: line search for gamma and compute the new approximation solution W
-        XS = XW + beta*(XW - XWp)
+        XS = XW + beta * (XW - XWp)
         # compute X'* XS
         XtXS = np.dot(np.transpose(X), XS)
         # obtain the gradient g
@@ -105,15 +114,15 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
 
         while True:
             # let S walk in a step in the antigradient of S to get V and then do the L1/L2-norm regularized projection
-            V = S - G/gamma
+            V = S - G / gamma
             W = euclidean_projection(V, n_features, n_classes, z, gamma)
             # the difference between the new approximate solution W and the search point S
             V = W - S
             # compute XW = X*W
             XW = np.dot(X, W)
             XV = XW - XS
-            r_sum = LA.norm(V, 'fro')**2
-            l_sum = LA.norm(XV, 'fro')**2
+            r_sum = LA.norm(V, "fro") ** 2
+            l_sum = LA.norm(XV, "fro") ** 2
 
             # determine weather the gradient step makes little improvement
             if r_sum <= 1e-20:
@@ -121,37 +130,36 @@ def proximal_gradient_descent(X, Y_flat, z, mode="rank", **kwargs):
                 break
 
             # the condition is ||XV||_2^2 <= gamma * ||V||_2^2
-            if l_sum < r_sum*gamma:
+            if l_sum < r_sum * gamma:
                 break
             else:
-                gamma = max(2*gamma, l_sum/r_sum)
+                gamma = max(2 * gamma, l_sum / r_sum)
         value_gamma[iter_step] = gamma
 
         # step3: update alpha and alphap, and check weather converge
         alphap = alpha
-        alpha = (1+math.sqrt(4*alpha*alpha+1))/2
+        alpha = (1 + math.sqrt(4 * alpha * alpha + 1)) / 2
 
         WWp = W - Wp
-        XWY = XW -Y
+        XWY = XW - Y
 
         # calculate obj
-        obj[iter_step] = LA.norm(XWY, 'fro')**2/2
-        obj[iter_step] += z*calculate_l21_norm(W)
+        obj[iter_step] = LA.norm(XWY, "fro") ** 2 / 2
+        obj[iter_step] += z * calculate_l21_norm(W)
 
         if verbose:
-            print('obj at iter {0}: {1}'.format(iter_step+1, obj[iter_step]))
+            print("obj at iter {0}: {1}".format(iter_step + 1, obj[iter_step]))
         if flag is True:
             break
 
         # determine weather converge
-        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
+        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step - 1]) < 1e-3:
             break
-    if mode=="raw":
+    if mode == "raw":
         return W, obj, value_gamma
-    elif mode=="rank":
+    elif mode == "rank":
         # feature vector is to sort in ascending order according to the Weight
         idx = feature_ranking(W).tolist()
         return reverse_argsort(idx, size=X.shape[1])
     else:
-        print("Invalid mode {} selected, should be one of \"raw\" or \"rank\"".format(mode))
-
+        print('Invalid mode {} selected, should be one of "raw" or "rank"'.format(mode))

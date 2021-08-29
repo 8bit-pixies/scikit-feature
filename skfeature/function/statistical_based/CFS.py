@@ -1,7 +1,9 @@
 import numpy as np
-from skfeature.utility.mutual_information import su_calculation
 from scipy.stats import rankdata
+
+from skfeature.utility.mutual_information import su_calculation
 from skfeature.utility.util import reverse_argsort
+
 
 def merit_calculation(X, y):
     """
@@ -78,14 +80,13 @@ def cfs(X, y, mode="rank"):
         F.append(idx)
         M.append(merit)
         if len(M) > 5:
-            if M[len(M)-1] <= M[len(M)-2]:
-                if M[len(M)-2] <= M[len(M)-3]:
-                    if M[len(M)-3] <= M[len(M)-4]:
-                        if M[len(M)-4] <= M[len(M)-5]:
+            if M[len(M) - 1] <= M[len(M) - 2]:
+                if M[len(M) - 2] <= M[len(M) - 3]:
+                    if M[len(M) - 3] <= M[len(M) - 4]:
+                        if M[len(M) - 4] <= M[len(M) - 5]:
                             break
-    
+
     if mode == "index":
         return np.array(F)
     else:
         return reverse_argsort(F, X.shape[1])
-

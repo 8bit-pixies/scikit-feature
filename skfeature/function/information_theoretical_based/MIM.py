@@ -1,6 +1,8 @@
+import numpy as np
+
 from skfeature.function.information_theoretical_based import LCSI
 from skfeature.utility.util import reverse_argsort
-import numpy as np
+
 
 def mim(X, y, mode="rank", **kwargs):
     """
@@ -30,12 +32,12 @@ def mim(X, y, mode="rank", **kwargs):
     Brown, Gavin et al. "Conditional Likelihood Maximisation: A Unifying Framework for Information Theoretic Feature Selection." JMLR 2012.
     """
 
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
+    if "n_selected_features" in list(kwargs.keys()):
+        n_selected_features = kwargs["n_selected_features"]
         F, J_CMI, MIfy = LCSI.lcsi(X, y, beta=0, gamma=0, n_selected_features=n_selected_features)
     else:
         F, J_CMI, MIfy = LCSI.lcsi(X, y, beta=0, gamma=0)
-    if mode=="index":
+    if mode == "index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??

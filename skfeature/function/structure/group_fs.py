@@ -1,5 +1,7 @@
 import math
+
 import numpy as np
+
 from skfeature.utility.sparse_learning import tree_lasso_projection, tree_norm
 
 
@@ -41,10 +43,10 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
         Liu, Jun, et al. "Moreau-Yosida Regularization for Grouped Tree Structure Learning." NIPS. 2010.
         Liu, Jun, et al. "SLEP: Sparse Learning with Efficient Projections." http://www.public.asu.edu/~jye02/Software/SLEP, 2009.
     """
-    if 'verbose' not in kwargs:
+    if "verbose" not in kwargs:
         verbose = False
     else:
-        verbose = kwargs['verbose']
+        verbose = kwargs["verbose"]
 
     # starting point initialization
     n_samples, n_features = X.shape
@@ -76,11 +78,11 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
     obj = np.zeros(max_iter)
     for iter_step in range(max_iter):
         # step1: compute search point s based on wp and w (with beta)
-        beta = (alphap-1)/alpha
-        s = w + beta*wwp
+        beta = (alphap - 1) / alpha
+        s = w + beta * wwp
 
         # step2: line search for gamma and compute the new approximation solution w
-        Xs = Xw + beta*(Xw - Xwp)
+        Xs = Xw + beta * (Xw - Xwp)
         # compute X'* Xs
         XtXs = np.dot(np.transpose(X), Xs)
         # obtain the gradient g
@@ -91,13 +93,13 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
 
         while True:
             # let s walk in a step in the antigradient of s to get v and then do the L1/L2-norm regularized projection
-            v = s - G/gamma
+            v = s - G / gamma
             # tree overlapping group lasso projection
             n_nodes = int(idx.shape[1])
-            idx_tmp = np.zeros((3, n_nodes+1))
+            idx_tmp = np.zeros((3, n_nodes + 1))
             idx_tmp[0:2, :] = np.concatenate((np.array([[-1], [-1]]), idx[0:2, :]), axis=1)
-            idx_tmp[2, :] = np.concatenate((np.array([z1/gamma]), z2/gamma*idx[2, :]), axis=1)
-            w = tree_lasso_projection(v, n_features, idx_tmp, n_nodes+1)
+            idx_tmp[2, :] = np.concatenate((np.array([z1 / gamma]), z2 / gamma * idx[2, :]), axis=1)
+            w = tree_lasso_projection(v, n_features, idx_tmp, n_nodes + 1)
             # the difference between the new approximate solution w and the search point s
             v = w - s
             # compute Xw = X*w
@@ -111,37 +113,35 @@ def group_fs(X, y, z1, z2, idx, **kwargs):
                 break
 
             # the condition is ||Xv||_2^2 <= gamma * ||v||_2^2
-            if l_sum <= r_sum*gamma:
+            if l_sum <= r_sum * gamma:
                 break
             else:
-                gamma = max(2*gamma, l_sum/r_sum)
+                gamma = max(2 * gamma, l_sum / r_sum)
         value_gamma[iter_step] = gamma
 
         # step3: update alpha and alphap, and check weather converge
         alphap = alpha
-        alpha = (1+math.sqrt(4*alpha*alpha+1))/2
+        alpha = (1 + math.sqrt(4 * alpha * alpha + 1)) / 2
 
         wwp = w - wp
-        Xwy = Xw -y
+        Xwy = Xw - y
 
         # calculate the regularization part
-        idx_tmp = np.zeros((3, n_nodes+1))
+        idx_tmp = np.zeros((3, n_nodes + 1))
         idx_tmp[0:2, :] = np.concatenate((np.array([[-1], [-1]]), idx[0:2, :]), axis=1)
-        idx_tmp[2, :] = np.concatenate((np.array([z1]), z2*idx[2, :]), axis=1)
-        tree_norm_val = tree_norm(w, n_features, idx_tmp, n_nodes+1)
+        idx_tmp[2, :] = np.concatenate((np.array([z1]), z2 * idx[2, :]), axis=1)
+        tree_norm_val = tree_norm(w, n_features, idx_tmp, n_nodes + 1)
 
         # function value = loss + regularization
-        obj[iter_step] = np.inner(Xwy, Xwy)/2 + tree_norm_val
+        obj[iter_step] = np.inner(Xwy, Xwy) / 2 + tree_norm_val
 
         if verbose:
-            print('obj at iter {0}: {1}'.format(iter_step+1, obj[iter_step]))
+            print("obj at iter {0}: {1}".format(iter_step + 1, obj[iter_step]))
         if flag is True:
             break
 
         # determine weather converge
-        if iter_step >= 2 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
+        if iter_step >= 2 and math.fabs(obj[iter_step] - obj[iter_step - 1]) < 1e-3:
             break
 
     return w, obj, value_gamma
-
-

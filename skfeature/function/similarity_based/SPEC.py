@@ -1,10 +1,11 @@
-import numpy.matlib
 import numpy as np
+import numpy.matlib
+import pandas as pd
+from numpy import linalg as LA
 from scipy.sparse import *
 from sklearn.metrics.pairwise import rbf_kernel
-from numpy import linalg as LA
+
 from skfeature.utility.util import reverse_argsort
-import pandas as pd
 
 
 def similiarity_classification(X, y):
@@ -15,13 +16,14 @@ def similiarity_classification(X, y):
     """
     y_series = pd.Series(y)
     y_val = y_series.value_counts(normalize=True)
-    
+
     y_size = len(y)
     sim_matrix = np.zeros((len(y), len(y)))
     for s_i in range(y_size):
         for s_j in range(y_size):
             sim_matrix[s_i, s_j] = y_val[y[s_i]] if y[s_i] == y[s_j] else 0
     return sim_matrix
+
 
 def similarity_regression(X, y, n_neighbors=None):
     """
@@ -37,15 +39,17 @@ def similarity_regression(X, y, n_neighbors=None):
     
     """
     from sklearn.neighbors import NearestNeighbors
+
     if n_neighbors is None:
-        n_neighbors = max(int(X.shape[0] * 0.05)+1, 2)
-    
+        n_neighbors = max(int(X.shape[0] * 0.05) + 1, 2)
+
     # use NerestNeighbors to determine closest obs
-    y_ = np.array(y).reshape(-1,1)
-    nbrs = NearestNeighbors(n_neighbors=n_neighbors, algorithm='auto').fit(y_)
+    y_ = np.array(y).reshape(-1, 1)
+    nbrs = NearestNeighbors(n_neighbors=n_neighbors, algorithm="auto").fit(y_)
     return np.multiply(nbrs.kneighbors_graph(y_).toarray(), rbf_kernel(X, gamma=1))
 
-def spec(X, y=None, mode='rank', **kwargs):
+
+def spec(X, y=None, mode="rank", **kwargs):
     """
     This function implements the SPEC feature selection
 
@@ -70,10 +74,11 @@ def spec(X, y=None, mode='rank', **kwargs):
     ---------
     Zhao, Zheng and Liu, Huan. "Spectral Feature Selection for Supervised and Unsupervised Learning." ICML 2007.
     """
+
     def feature_ranking(score, **kwargs):
-        if 'style' not in kwargs:
-            kwargs['style'] = 0
-        style = kwargs['style']
+        if "style" not in kwargs:
+            kwargs["style"] = 0
+        style = kwargs["style"]
 
         # if style = -1 or 0, ranking features in descending order, the higher the score, the more important the feature is
         if style == -1 or style == 0:
@@ -83,22 +88,22 @@ def spec(X, y=None, mode='rank', **kwargs):
         elif style != -1 and style != 0:
             idx = np.argsort(score, 0)
             return idx
-    
-    if 'style' not in kwargs:
-        kwargs['style'] = 0
-    if 'is_classification' not in kwargs:
+
+    if "style" not in kwargs:
+        kwargs["style"] = 0
+    if "is_classification" not in kwargs:
         # if y is available then we do supervised SPEC algo.
-        kwargs['is_classification'] = True    
-    if 'W' not in kwargs:
+        kwargs["is_classification"] = True
+    if "W" not in kwargs:
         if y is None:
-            kwargs['W'] = rbf_kernel(X, gamma=1)
-        elif kwargs['is_classification']:
-            kwargs['W'] = similiarity_classification(X, y)
+            kwargs["W"] = rbf_kernel(X, gamma=1)
+        elif kwargs["is_classification"]:
+            kwargs["W"] = similiarity_classification(X, y)
         else:
-            kwargs['W'] = similarity_regression(X, y, kwargs.get('n_neighbors', None))
-    
-    style = kwargs['style']
-    W = kwargs['W']
+            kwargs["W"] = similarity_regression(X, y, kwargs.get("n_neighbors", None))
+
+    style = kwargs["style"]
+    W = kwargs["W"]
     if type(W) is numpy.ndarray:
         W = csc_matrix(W)
 
@@ -116,7 +121,7 @@ def spec(X, y=None, mode='rank', **kwargs):
     d1[np.isinf(d1)] = 0
     d2 = np.power(np.array(W.sum(axis=1)), 0.5)
     v = np.dot(np.diag(d2[:, 0]), np.ones(n_samples))
-    v = v/LA.norm(v)
+    v = v / LA.norm(v)
 
     # build the normalized laplacian matrix
     L_hat = (np.matlib.repmat(d1, 1, n_samples)) * np.array(L) * np.matlib.repmat(np.transpose(d1), n_samples, 1)
@@ -127,17 +132,17 @@ def spec(X, y=None, mode='rank', **kwargs):
     U = np.fliplr(U)
 
     # begin to select features
-    w_fea = np.ones(n_features)*1000
+    w_fea = np.ones(n_features) * 1000
 
     for i in range(n_features):
         f = X[:, i]
         F_hat = np.dot(np.diag(d2[:, 0]), f)
         l = LA.norm(F_hat)
-        if l < 100*np.spacing(1):
+        if l < 100 * np.spacing(1):
             w_fea[i] = 1000
             continue
         else:
-            F_hat = F_hat/l
+            F_hat = F_hat / l
         a = np.array(np.dot(np.transpose(F_hat), U))
         a = np.multiply(a, a)
         a = np.transpose(a)
@@ -147,20 +152,19 @@ def spec(X, y=None, mode='rank', **kwargs):
             w_fea[i] = np.sum(a * s)
         # using all eigenvalues except the 1st
         elif style == 0:
-            a1 = a[0:n_samples-1]
-            w_fea[i] = np.sum(a1 * s[0:n_samples-1])/(1-np.power(np.dot(np.transpose(F_hat), v), 2))
+            a1 = a[0 : n_samples - 1]
+            w_fea[i] = np.sum(a1 * s[0 : n_samples - 1]) / (1 - np.power(np.dot(np.transpose(F_hat), v), 2))
         # use first k except the 1st
         else:
-            a1 = a[n_samples-style:n_samples-1]
-            w_fea[i] = np.sum(a1 * (2-s[n_samples-style: n_samples-1]))
+            a1 = a[n_samples - style : n_samples - 1]
+            w_fea[i] = np.sum(a1 * (2 - s[n_samples - style : n_samples - 1]))
 
     if style != -1 and style != 0:
         w_fea[w_fea == 1000] = -1000
 
-    if mode == 'raw':
+    if mode == "raw":
         return w_fea
-    elif mode == 'index':
+    elif mode == "index":
         return feature_ranking(w_fea)
     else:
         return reverse_argsort(feature_ranking(w_fea))
-

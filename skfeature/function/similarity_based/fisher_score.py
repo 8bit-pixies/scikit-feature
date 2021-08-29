@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.sparse import *
+
 from skfeature.utility.construct_W import construct_W
 from skfeature.utility.util import reverse_argsort
+
 
 def fisher_score(X, y, mode="rank"):
     """
@@ -28,12 +30,13 @@ def fisher_score(X, y, mode="rank"):
     He, Xiaofei et al. "Laplacian Score for Feature Selection." NIPS 2005.
     Duda, Richard et al. "Pattern classification." John Wiley & Sons, 2012.
     """
+
     def feature_ranking(score):
         idx = np.argsort(score, 0)
         return idx[::-1]
-    
+
     # Construct weight matrix W in a fisherScore way
-    kwargs = {"neighbor_mode": "supervised", "fisher_score": True, 'y': y}
+    kwargs = {"neighbor_mode": "supervised", "fisher_score": True, "y": y}
     W = construct_W(X, **kwargs)
 
     # build the diagonal D matrix from affinity matrix W
@@ -45,24 +48,23 @@ def fisher_score(X, y, mode="rank"):
     t1 = np.transpose(np.dot(Xt, D.todense()))
     t2 = np.transpose(np.dot(Xt, L.todense()))
     # compute the numerator of Lr
-    D_prime = np.sum(np.multiply(t1, X), 0) - np.multiply(tmp, tmp)/D.sum()
+    D_prime = np.sum(np.multiply(t1, X), 0) - np.multiply(tmp, tmp) / D.sum()
     # compute the denominator of Lr
-    L_prime = np.sum(np.multiply(t2, X), 0) - np.multiply(tmp, tmp)/D.sum()
+    L_prime = np.sum(np.multiply(t2, X), 0) - np.multiply(tmp, tmp) / D.sum()
     # avoid the denominator of Lr to be 0
     D_prime[D_prime < 1e-12] = 10000
-    lap_score = 1 - np.array(np.multiply(L_prime, 1/D_prime))[0, :]
+    lap_score = 1 - np.array(np.multiply(L_prime, 1 / D_prime))[0, :]
 
     # compute fisher score from laplacian score, where fisher_score = 1/lap_score - 1
-    score = 1.0/lap_score - 1
+    score = 1.0 / lap_score - 1
 
     """
     Rank features in descending order according to fisher score, the larger the fisher score, the more important the
     feature is
     """
     F = feature_ranking(np.transpose(score))
-    
-    if mode=="index":
+
+    if mode == "index":
         return F
     else:
         return reverse_argsort(F, X.shape[1])
-

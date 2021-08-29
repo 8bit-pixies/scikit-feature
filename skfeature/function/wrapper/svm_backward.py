@@ -1,9 +1,8 @@
 import numpy as np
+from sklearn.model_selection import KFold, cross_val_score
 from sklearn.svm import SVC
-from sklearn.model_selection import KFold
-from sklearn.model_selection import cross_val_score
-from skfeature.utility.util import reverse_argsort
 
+from skfeature.utility.util import reverse_argsort
 
 
 def svm_backward(X, y, mode="rank", n_selected_features=None):
@@ -57,5 +56,3 @@ def svm_backward(X, y, mode="rank", n_selected_features=None):
         return np.array(F)
     else:
         return reverse_argsort(F)
-
-

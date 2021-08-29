@@ -1,5 +1,7 @@
 import numpy as np
+
 from skfeature.utility.util import reverse_argsort
+
 
 def gini_index(X, y, mode="rank"):
     """
@@ -17,6 +19,7 @@ def gini_index(X, y, mode="rank"):
     gini: {numpy array}, shape (n_features, )
         gini index value of each feature
     """
+
     def feature_ranking(W):
         """
         Rank features in descending order according to their gini index values, the smaller the gini index,
@@ -44,7 +47,7 @@ def gini_index(X, y, mode="rank"):
             gini_left = 0
             gini_right = 0
 
-            for k in range(np.min(y), np.max(y)+1):
+            for k in range(np.min(y), np.max(y) + 1):
                 if len(left_y) != 0:
                     # t1_left is probability of occurrence of k in left_y
                     t1_left = np.true_divide(len(left_y[left_y == k]), len(left_y))
@@ -61,7 +64,7 @@ def gini_index(X, y, mode="rank"):
             gini_right = 1 - gini_right
 
             # weighted average of len(left_y) and len(right_y)
-            t1_gini = (len(left_y) * gini_left + len(right_y) * gini_right)
+            t1_gini = len(left_y) * gini_left + len(right_y) * gini_right
 
             # compute the gini_index for the i-th feature
             value = np.true_divide(t1_gini, len(y))
@@ -69,16 +72,8 @@ def gini_index(X, y, mode="rank"):
             if value < gini[i]:
                 gini[i] = value
     F = feature_ranking(gini)
-    if mode=="index":
+    if mode == "index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??
         return reverse_argsort(F, size=X.shape[1])
-
-
-
-
-
-
-
-

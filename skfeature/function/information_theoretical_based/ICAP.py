@@ -1,6 +1,9 @@
+import numpy as np
+
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.util import reverse_argsort
-import numpy as np
+
+
 def icap(X, y, mode="rank", **kwargs):
     """
     This function implements the ICAP feature selection.
@@ -34,8 +37,8 @@ def icap(X, y, mode="rank", **kwargs):
     MIfy = []
     # indicate whether the user specifies the number of features
     is_n_selected_features_specified = False
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
+    if "n_selected_features" in list(kwargs.keys()):
+        n_selected_features = kwargs["n_selected_features"]
         is_n_selected_features_specified = True
 
     # t1 contains I(f;y) for each feature f
@@ -72,8 +75,8 @@ def icap(X, y, mode="rank", **kwargs):
                 f = X[:, i]
                 t2 = midd(f_select, f)
                 t3 = cmidd(f_select, f, y)
-                if t2-t3 > max[i]:
-                    max[i] = t2-t3
+                if t2 - t3 > max[i]:
+                    max[i] = t2 - t3
                 # calculate j_icap for feature i (not in F)
                 t = t1[i] - max[i]
                 # record the largest j_icap and the corresponding feature index
@@ -85,10 +88,8 @@ def icap(X, y, mode="rank", **kwargs):
         MIfy.append(t1[idx])
         f_select = X[:, idx]
 
-    if mode=="index":
+    if mode == "index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??
         return reverse_argsort(F, size=X.shape[1])
-
-

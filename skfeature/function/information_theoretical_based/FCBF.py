@@ -1,6 +1,8 @@
 import numpy as np
+
 from skfeature.utility.mutual_information import su_calculation
 from skfeature.utility.util import reverse_argsort
+
 
 def fcbf(X, y, mode="rank", **kwargs):
     """
@@ -29,8 +31,8 @@ def fcbf(X, y, mode="rank", **kwargs):
     """
 
     n_samples, n_features = X.shape
-    if 'delta' in list(kwargs.keys()):
-        delta = kwargs['delta']
+    if "delta" in list(kwargs.keys()):
+        delta = kwargs["delta"]
     else:
         # the default value of delta is 0
         delta = 0
@@ -63,11 +65,10 @@ def fcbf(X, y, mode="rank", **kwargs):
                 idx = np.transpose(idx)
                 # delete the feature by using the mask
                 s_list = s_list[idx]
-                length = len(s_list)/2
+                length = len(s_list) / 2
                 s_list = s_list.reshape((int(length), 2))
-    if mode=="index":
+    if mode == "index":
         return np.array(F, dtype=int)
     else:
         # make sure that F is the same size??
         return reverse_argsort(F, size=X.shape[1])
-

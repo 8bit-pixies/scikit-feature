@@ -1,8 +1,7 @@
 import numpy as np
-import sklearn.utils.linear_assignment_ as la
-from sklearn.metrics import accuracy_score
-from sklearn.metrics.cluster import normalized_mutual_info_score
+from scipy.optimize import linear_sum_assignment as linear_assignment
 from sklearn.cluster import KMeans
+from sklearn.metrics import accuracy_score, normalized_mutual_info_score
 
 
 def best_map(l1, l2):
@@ -28,7 +27,8 @@ def best_map(l1, l2):
             tt = l2 == label2[j]
             G[i, j] = np.count_nonzero(ss & tt)
 
-    A = la.linear_assignment(-G)
+    A = linear_assignment(-G)
+    A = np.array(list(zip(*A)))
 
     new_l2 = np.zeros(l2.shape)
     for i in range(0, n_class2):
@@ -56,9 +56,9 @@ def evaluation(X_selected, n_clusters, y):
     acc: {float}
         Accuracy
     """
-    k_means = KMeans(n_clusters=n_clusters, init='k-means++', n_init=10, max_iter=300,
-                     tol=0.0001, precompute_distances=True, verbose=0,
-                     random_state=None, copy_x=True, n_jobs=1)
+    k_means = KMeans(
+        n_clusters=n_clusters, n_init=10, max_iter=300, tol=0.0001, verbose=0, random_state=None, copy_x=True, n_jobs=1,
+    )
 
     k_means.fit(X_selected)
     y_predict = k_means.labels_

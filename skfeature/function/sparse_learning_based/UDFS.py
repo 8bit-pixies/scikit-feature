@@ -1,12 +1,14 @@
+import math
+
 import numpy as np
 import scipy
-import math
-from skfeature.utility.sparse_learning import generate_diagonal_matrix, calculate_l21_norm
 from sklearn.metrics.pairwise import pairwise_distances
-from skfeature.utility.sparse_learning import feature_ranking
+
+from skfeature.utility.sparse_learning import calculate_l21_norm, feature_ranking, generate_diagonal_matrix
 from skfeature.utility.util import reverse_argsort
 
-def udfs(X, y=None, mode='rank', **kwargs):
+
+def udfs(X, y=None, mode="rank", **kwargs):
     """
     This function implements l2,1-norm regularized discriminative feature
     selection for unsupervised learning, i.e., min_W Tr(W^T M W) + gamma ||W||_{2,1}, s.t. W^T W = I
@@ -33,6 +35,7 @@ def udfs(X, y=None, mode='rank', **kwargs):
     Reference
     Yang, Yi et al. "l2,1-Norm Regularized Discriminative Feature Selection for Unsupervised Learning." AAAI 2012.
     """
+
     def construct_M(X, k, gamma):
         """
         This function constructs the M matrix described in the paper
@@ -43,45 +46,45 @@ def udfs(X, y=None, mode='rank', **kwargs):
         # sort the distance matrix D in ascending order
         idx = np.argsort(D, axis=1)
         # choose the k-nearest neighbors for each instance
-        idx_new = idx[:, 0:k+1]
-        H = np.eye(k+1) - 1/(k+1) * np.ones((k+1, k+1))
-        I = np.eye(k+1)
+        idx_new = idx[:, 0 : k + 1]
+        H = np.eye(k + 1) - 1 / (k + 1) * np.ones((k + 1, k + 1))
+        I = np.eye(k + 1)
         Mi = np.zeros((n_sample, n_sample))
         for i in range(n_sample):
             Xi = Xt[:, idx_new[i, :]]
-            Xi_tilde =np.dot(Xi, H)
-            Bi = np.linalg.inv(np.dot(Xi_tilde.T, Xi_tilde) + gamma*I)
-            Si = np.zeros((n_sample, k+1))
-            for q in range(k+1):
+            Xi_tilde = np.dot(Xi, H)
+            Bi = np.linalg.inv(np.dot(Xi_tilde.T, Xi_tilde) + gamma * I)
+            Si = np.zeros((n_sample, k + 1))
+            for q in range(k + 1):
                 Si[idx_new[q], q] = 1
             Mi = Mi + np.dot(np.dot(Si, np.dot(np.dot(H, Bi), H)), Si.T)
         M = np.dot(np.dot(X.T, Mi), X)
         return M
 
-
     def calculate_obj(X, W, M, gamma):
         """
         This function calculates the objective function of ls_l21 described in the paper
         """
-        return np.trace(np.dot(np.dot(W.T, M), W)) + gamma*calculate_l21_norm(W)
+        return np.trace(np.dot(np.dot(W.T, M), W)) + gamma * calculate_l21_norm(W)
+
     # default gamma is 0.1
-    if 'gamma' not in kwargs:
+    if "gamma" not in kwargs:
         gamma = 0.1
     else:
-        gamma = kwargs['gamma']
+        gamma = kwargs["gamma"]
     # default k is set to be 5
-    if 'k' not in kwargs:
+    if "k" not in kwargs:
         k = 5
     else:
-        k = kwargs['k']
-    if 'n_clusters' not in kwargs:
+        k = kwargs["k"]
+    if "n_clusters" not in kwargs:
         n_clusters = 5
     else:
-        n_clusters = kwargs['n_clusters']
-    if 'verbose' not in kwargs:
+        n_clusters = kwargs["n_clusters"]
+    if "verbose" not in kwargs:
         verbose = False
     else:
-        verbose = kwargs['verbose']
+        verbose = kwargs["verbose"]
 
     # construct M
     n_sample, n_feature = X.shape
@@ -93,7 +96,7 @@ def udfs(X, y=None, mode='rank', **kwargs):
     for iter_step in range(max_iter):
         # update W as the eigenvectors of P corresponding to the first n_clusters
         # smallest eigenvalues
-        P = M + gamma*D
+        P = M + gamma * D
         eigen_value, eigen_vector = scipy.linalg.eigh(a=P)
         W = eigen_vector[:, 0:n_clusters]
         # update D as D_ii = 1 / 2 / ||W(i,:)||
@@ -101,14 +104,13 @@ def udfs(X, y=None, mode='rank', **kwargs):
 
         obj[iter_step] = calculate_obj(X, W, M, gamma)
         if verbose:
-            print('obj at iter {0}: {1}'.format(iter_step+1, obj[iter_step]))
+            print("obj at iter {0}: {1}".format(iter_step + 1, obj[iter_step]))
 
-        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step-1]) < 1e-3:
+        if iter_step >= 1 and math.fabs(obj[iter_step] - obj[iter_step - 1]) < 1e-3:
             break
-    if mode == 'raw':
+    if mode == "raw":
         return W
-    elif mode == 'index':
+    elif mode == "index":
         return feature_ranking(W)
-    elif mode == 'rank':
+    elif mode == "rank":
         return reverse_argsort(feature_ranking(W))
-

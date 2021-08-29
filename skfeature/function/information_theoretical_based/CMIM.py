@@ -1,6 +1,9 @@
+import numpy as np
+
 from skfeature.utility.entropy_estimators import *
 from skfeature.utility.util import reverse_argsort
-import numpy as np
+
+
 def cmim(X, y, mode="rank", **kwargs):
     """
     This function implements the CMIM feature selection.
@@ -40,8 +43,8 @@ def cmim(X, y, mode="rank", **kwargs):
     # indicate whether the user specifies the number of features
     is_n_selected_features_specified = False
 
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
+    if "n_selected_features" in list(kwargs.keys()):
+        n_selected_features = kwargs["n_selected_features"]
         is_n_selected_features_specified = True
 
     # t1 stores I(f;y) for each feature f
@@ -49,7 +52,7 @@ def cmim(X, y, mode="rank", **kwargs):
 
     # max stores max(I(fj;f)-I(fj;f|y)) for each feature f
     # we assign an extreme small value to max[i] ito make it is smaller than possible value of max(I(fj;f)-I(fj;f|y))
-    max = -10000000*np.ones(n_features)
+    max = -10000000 * np.ones(n_features)
     for i in range(n_features):
         f = X[:, i]
         t1[i] = midd(f, y)
@@ -80,8 +83,8 @@ def cmim(X, y, mode="rank", **kwargs):
                 f = X[:, i]
                 t2 = midd(f_select, f)
                 t3 = cmidd(f_select, f, y)
-                if t2-t3 > max[i]:
-                        max[i] = t2-t3
+                if t2 - t3 > max[i]:
+                    max[i] = t2 - t3
                 # calculate j_cmim for feature i (not in F)
                 t = t1[i] - max[i]
                 # record the largest j_cmim and the corresponding feature index
@@ -92,7 +95,7 @@ def cmim(X, y, mode="rank", **kwargs):
         J_CMIM.append(j_cmim)
         MIfy.append(t1[idx])
         f_select = X[:, idx]
-    if mode=="index":
+    if mode == "index":
         return np.array(F)
     else:
         return reverse_argsort(F)

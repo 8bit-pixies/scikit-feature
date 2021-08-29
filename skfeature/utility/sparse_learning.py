@@ -16,7 +16,7 @@ def feature_ranking(W):
     idx: {numpy array}, shape {n_features,}
         feature index ranked in descending order by feature importance
     """
-    T = (W*W).sum(1)
+    T = (W * W).sum(1)
     idx = np.argsort(T, 0)
     return idx[::-1]
 
@@ -107,8 +107,8 @@ def euclidean_projection(V, n_features, n_classes, z, gamma):
     """
     W_projection = np.zeros((n_features, n_classes))
     for i in range(n_features):
-        if LA.norm(V[i, :]) > z/gamma:
-            W_projection[i, :] = (1-z/(gamma*LA.norm(V[i, :])))*V[i, :]
+        if LA.norm(V[i, :]) > z / gamma:
+            W_projection[i, :] = (1 - z / (gamma * LA.norm(V[i, :]))) * V[i, :]
         else:
             W_projection[i, :] = np.zeros(n_classes)
     return W_projection
@@ -183,7 +183,6 @@ def tree_norm(w, n_features, idx, n_nodes):
             two_norm += w[j] * w[j]
         two_norm = np.sqrt(two_norm)
         z = idx[2, i]
-        obj += z*two_norm
+        obj += z * two_norm
         i += 1
     return obj
-

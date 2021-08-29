@@ -1,4 +1,4 @@
-#from distutils.core import setup
+# from distutils.core import setup
 from setuptools import setup
 
 """
@@ -27,26 +27,43 @@ AUTHOR = "Jundong Li, Kewei Cheng, Suhang Wang"
 
 AUTHOR_EMAIL = "jundong.li@asu.edu, kcheng18@asu.edu, suhang.wang@asu.edu"
 
-MAINTAINER="Chapman Siu"
+MAINTAINER = "Chapman Siu"
 
-MAINTAINER_EMAIL="chpmn.siu@gmail.com"
+MAINTAINER_EMAIL = "chpmn.siu@gmail.com"
 
 URL = "https://github.com/chappers/scikit-feature"
 
 VERSION = "1.0.3"
 
+REQUIRED = [
+    "scikit-learn",
+    "pandas",
+    "numpy"
+]
 
 setup(
-    name = NAME,
-    version = VERSION,
-    description = DESCRIPTION,
-    keywords = KEYWORDS,
-    author = AUTHOR,
-    author_email = AUTHOR_EMAIL,
-    maintainer=MAINTAINER, 
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    keywords=KEYWORDS,
+    author=AUTHOR,
+    install_requires=REQUIRED,
+    author_email=AUTHOR_EMAIL,
+    maintainer=MAINTAINER,
     maintainer_email=MAINTAINER_EMAIL,
-    url = URL,
-    packages =['skfeature', 'skfeature.utility','skfeature.function','skfeature.function.information_theoretical_based','skfeature.function.similarity_based','skfeature.function.sparse_learning_based','skfeature.function.statistical_based','skfeature.function.streaming','skfeature.function.structure','skfeature.function.wrapper',] ,
+    url=URL,
+    packages=[
+        "skfeature",
+        "skfeature.utility",
+        "skfeature.function",
+        "skfeature.function.information_theoretical_based",
+        "skfeature.function.similarity_based",
+        "skfeature.function.sparse_learning_based",
+        "skfeature.function.statistical_based",
+        "skfeature.function.streaming",
+        "skfeature.function.structure",
+        "skfeature.function.wrapper",
+    ],
 )
 
 
@@ -54,5 +71,3 @@ setup(
 # python setup.py sdist
 # python setup.py bdist_wheel --universal
 # twine upload dist/*
-
-

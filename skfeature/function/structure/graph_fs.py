@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def soft_threshold(A,b):
+def soft_threshold(A, b):
     """
     This function implement the soft-threshold operator
     Input:
@@ -15,7 +15,11 @@ def soft_threshold(A,b):
 
 
 def calculate_obj(X, y, w, lambda1, lambda2, T):
-    return 1/2 * (np.linalg.norm(y- np.dot(X, w), 'fro'))**2 + lambda1*np.abs(w).sum() + lambda2*np.abs(np.dot(T, w)).sum()
+    return (
+        1 / 2 * (np.linalg.norm(y - np.dot(X, w), "fro")) ** 2
+        + lambda1 * np.abs(w).sum()
+        + lambda2 * np.abs(np.dot(T, w)).sum()
+    )
 
 
 def graph_fs(X, y, **kwargs):
@@ -48,31 +52,31 @@ def graph_fs(X, y, **kwargs):
         obj: the value of the objective function in each iteration
     """
 
-    if 'lambda1' not in kwargs:
+    if "lambda1" not in kwargs:
         lambda1 = 0.8
     else:
-        lambda1 = kwargs['lambda1']
-    if 'lambda2' not in kwargs:
+        lambda1 = kwargs["lambda1"]
+    if "lambda2" not in kwargs:
         lambda2 = 0.8
     else:
-        lambda2 = kwargs['lambda2']
-    if 'edge_list' not in kwargs:
-        print('Error using function, the network structure E is required')
-        raise()
-    else :
-        edge_list = kwargs['edge_list']
-    if 'max_iter' not in kwargs:
+        lambda2 = kwargs["lambda2"]
+    if "edge_list" not in kwargs:
+        print("Error using function, the network structure E is required")
+        raise ()
+    else:
+        edge_list = kwargs["edge_list"]
+    if "max_iter" not in kwargs:
         max_iter = 300
     else:
-        max_iter = kwargs['max_iter']
-    if 'verbose' not in kwargs:
+        max_iter = kwargs["max_iter"]
+    if "verbose" not in kwargs:
         verbose = 0
     else:
-        verbose = kwargs['verbose']
-    if 'rho' not in kwargs:
+        verbose = kwargs["verbose"]
+    if "rho" not in kwargs:
         rho = 5
     else:
-        rho = kwargs['rho']
+        rho = kwargs["rho"]
 
     n_samples, n_features = X.shape
 
@@ -80,15 +84,15 @@ def graph_fs(X, y, **kwargs):
     ind1 = edge_list[:, 0]
     ind2 = edge_list[:, 1]
     num_edge = ind1.shape[0]
-    T = np.zeros((num_edge*2, n_features))
+    T = np.zeros((num_edge * 2, n_features))
     for i in range(num_edge):
         T[i, ind1[i]] = 0.5
         T[i, ind2[i]] = 0.5
-        T[i+num_edge, ind1[i]] = 0.5
-        T[i+num_edge, ind2[i]] = -0.5
+        T[i + num_edge, ind1[i]] = 0.5
+        T[i + num_edge, ind2[i]] = -0.5
 
     # calculate F = X^T X + rho(I + T^T * T)
-    F = np.dot(X.T, X) + rho*(np.identity(n_features) + np.dot(T.T, T))
+    F = np.dot(X.T, X) + rho * (np.identity(n_features) + np.dot(T.T, T))
 
     # Cholesky factorization of F = R^T R
     R = np.linalg.cholesky(F)  # NOTE, this return F = R R^T
@@ -97,36 +101,37 @@ def graph_fs(X, y, **kwargs):
     Rtinv = Rinv.T
 
     # initialize p, q, mu , v to be zero vectors
-    p = np.zeros((2*num_edge, 1))
+    p = np.zeros((2 * num_edge, 1))
     q = np.zeros((n_features, 1))
     mu = np.zeros((n_features, 1))
-    v = np.zeros((2*num_edge, 1))
+    v = np.zeros((2 * num_edge, 1))
 
     # start the main loop
     iter = 0
-    obj = np.zeros((max_iter,1))
+    obj = np.zeros((max_iter, 1))
     while iter < max_iter:
         print(iter)
         # update w
-        b = np.dot(X.T, y) - mu - np.dot(T.T, v) + rho*np.dot(T.T,p) + rho*q
+        b = np.dot(X.T, y) - mu - np.dot(T.T, v) + rho * np.dot(T.T, p) + rho * q
         w_hat = np.dot(Rtinv, b)
         w = np.dot(Rinv, w_hat)
 
         # update q
-        q = soft_threshold(w + 1/rho*mu, lambda1/rho)
+        q = soft_threshold(w + 1 / rho * mu, lambda1 / rho)
         # update p
 
-        p = soft_threshold(np.dot(T, w)+1/rho*v, lambda2/rho)
+        p = soft_threshold(np.dot(T, w) + 1 / rho * v, lambda2 / rho)
         # update mu, v
-        mu += rho*(w - q)
-        v += rho*(np.dot(T, w) - p)
+        mu += rho * (w - q)
+        v += rho * (np.dot(T, w) - p)
 
         # calculate objective function
         obj[iter] = calculate_obj(X, y, w, lambda1, lambda2, T)
         if verbose:
-            print('obj at iter {0}: {1}'.format(iter, obj[iter]))
+            print("obj at iter {0}: {1}".format(iter, obj[iter]))
         iter += 1
     return w, obj, q
+
 
 def feature_ranking(w):
     T = w.abs()

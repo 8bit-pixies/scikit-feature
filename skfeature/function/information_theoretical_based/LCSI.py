@@ -1,5 +1,7 @@
-from skfeature.utility.entropy_estimators import *
 import numpy as np
+
+from skfeature.utility.entropy_estimators import *
+
 
 def lcsi(X, y, **kwargs):
     """
@@ -47,12 +49,12 @@ def lcsi(X, y, **kwargs):
     # indicate whether the user specifies the number of features
     is_n_selected_features_specified = False
     # initialize the parameters
-    if 'beta' in list(kwargs.keys()):
-        beta = kwargs['beta']
-    if 'gamma' in list(kwargs.keys()):
-        gamma = kwargs['gamma']
-    if 'n_selected_features' in list(kwargs.keys()):
-        n_selected_features = kwargs['n_selected_features']
+    if "beta" in list(kwargs.keys()):
+        beta = kwargs["beta"]
+    if "gamma" in list(kwargs.keys()):
+        gamma = kwargs["gamma"]
+    if "n_selected_features" in list(kwargs.keys()):
+        n_selected_features = kwargs["n_selected_features"]
         is_n_selected_features_specified = True
 
     # select the feature whose j_cmi is the largest
@@ -86,11 +88,11 @@ def lcsi(X, y, **kwargs):
                 break
 
         # we assign an extreme small value to j_cmi to ensure it is smaller than all possible values of j_cmi
-        j_cmi = -1E30
-        if 'function_name' in kwargs.keys():
-            if kwargs['function_name'] == 'MRMR':
+        j_cmi = -1e30
+        if "function_name" in kwargs.keys():
+            if kwargs["function_name"] == "MRMR":
                 beta = 1.0 / len(F)
-            elif kwargs['function_name'] == 'JMI':
+            elif kwargs["function_name"] == "JMI":
                 beta = 1.0 / len(F)
                 gamma = 1.0 / len(F)
         for i in range(n_features):
@@ -99,7 +101,7 @@ def lcsi(X, y, **kwargs):
                 t2[i] += midd(f_select, f)
                 t3[i] += cmidd(f_select, f, y)
                 # calculate j_cmi for feature i (not in F)
-                t = t1[i] - beta*t2[i] + gamma*t3[i]
+                t = t1[i] - beta * t2[i] + gamma * t3[i]
                 # record the largest j_cmi and the corresponding feature index
                 if t > j_cmi:
                     j_cmi = t
@@ -110,8 +112,3 @@ def lcsi(X, y, **kwargs):
         f_select = X[:, idx]
 
     return np.array(F), np.array(J_CMI), np.array(MIfy)
-
-
-
-
-

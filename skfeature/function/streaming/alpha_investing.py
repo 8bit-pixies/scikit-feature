@@ -1,7 +1,8 @@
 import numpy as np
 from sklearn import linear_model
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.feature_selection.base import SelectorMixin
+from sklearn.feature_selection import SelectorMixin
+
 from skfeature.utility.util import reverse_argsort
 
 
@@ -32,7 +33,7 @@ def alpha_investing(X, y, w0, dw):
     F = []  # selected features
     for i in range(n_features):
         x_can = X[:, i]  # generate next feature
-        alpha = w/2/(i+1)
+        alpha = w / 2 / (i + 1)
         X_old = X[:, F]
         if i is 0:
             X_old = np.ones((n_samples, 1))
@@ -52,13 +53,14 @@ def alpha_investing(X, y, w0, dw):
         error_new = 1 - logreg_new.score(X_new, y)
 
         # calculate p-value
-        pval = np.exp((error_new - error_old)/(2*error_old/n_samples))
+        pval = np.exp((error_new - error_old) / (2 * error_old / n_samples))
         if pval < alpha:
             F.append(i)
             w = w + dw - alpha
         else:
             w -= alpha
     return np.array(F)
+
 
 class AlphaInvesting(BaseEstimator, TransformerMixin):
     """
@@ -68,17 +70,15 @@ class AlphaInvesting(BaseEstimator, TransformerMixin):
     ---------
     Zhou, Jing et al. "Streaming Feature Selection using Alpha-investing." KDD 2006.
     """
+
     def __init__(self, w0, dw):
         self.w0 = w0
         self.dw = dw
-        self.F = [] # selected features
-    
+        self.F = []  # selected features
+
     def fit(self, X, y=None):
         self.F = alpha_investing(X[:], y[:], self.w0, self.dw)
         return self
-    
+
     def transform(self, X):
         return X[:, self.F]
-    
-    
-    

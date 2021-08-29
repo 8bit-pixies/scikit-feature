@@ -1,3 +1,4 @@
+import unittest
 from functools import partial
 
 import numpy as np
@@ -11,6 +12,7 @@ from skfeature.function.similarity_based import SPEC
 from skfeature.utility import unsupervised_evaluation
 
 
+@unittest.skip("temporarily disabled")
 def test_spec():
     # load data
     mat = scipy.io.loadmat("./skfeature/data/COIL20.mat")

@@ -1,9 +1,9 @@
-install-python-ci:
+install-python-ci-dependencies:
 	pip install -e ".[ci]"
 
 
 test-python:
-	pytest -n 8 tests
+	pytest tests
 
 format-python:
 	# Sort

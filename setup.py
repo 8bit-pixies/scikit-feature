@@ -33,7 +33,7 @@ MAINTAINER_EMAIL = "gl343@cornell.edu"
 
 URL = "https://github.com/lguangyu/scikit-feature"
 
-VERSION = "1.1.1.post1"
+VERSION = "1.1.2"
 
 REQUIRED = [
     "scikit-learn",
